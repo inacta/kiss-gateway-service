@@ -1,0 +1,267 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "incat-blockchain-core",
+    "version": "1.0.0"
+  },
+  "servers": [{
+    "url": "http://localhost:7000/blockchain/v1"
+  }],
+  "paths": {
+    "/deployer/balance": {
+      "get": {
+        "operationId": "getDeployerBalance",
+        "summary": "Get the tezos balance of the deployer",
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Balance"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contracts/": {
+      "post": {
+        "operationId": "originateContract",
+        "summary": "Originate a new contract with the corresponding parameters. Returns the address of the new originated contract",
+        "requestBody": {
+          "description": "Parameters for the new contract",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewContract"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OriginatedContract"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contracts/{address}/storage": {
+      "get": {
+        "operationId": "getContractStorage",
+        "summary": "Get the storage of a contract",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "description": "address of the contract",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContractStorage"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TokenMetadata": {
+        "type": "object",
+        "properties": {
+          "decimals": {
+            "type": "string"
+          },
+          "extras": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "token_id": {
+            "type": "string"
+          }
+        }
+      },
+      "Balance": {
+        "type": "object",
+        "properties": {
+          "balance": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "OriginatedContract": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string"
+          }
+        }
+      },
+      "BalanceItem": {
+        "type": "number",
+        "format": "double"
+      },
+      "LedgerItem": {
+        "type": "object",
+        "properties": {
+          "allowances": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "balances": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/BalanceItem"
+            }
+          }
+        }
+      },
+      "DocumentItem": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "NewContract": {
+        "type": "object",
+        "required": [
+          "admin",
+          "initial_balance",
+          "symbol",
+          "name",
+          "decimals",
+          "extras_token",
+          "extras_company"
+        ],
+        "properties": {
+          "admin": {
+            "type": "string"
+          },
+          "initial_balance": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "decimals": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "extras_token": {
+            "type": "string"
+          },
+          "extras_company": {
+            "type": "string"
+          }
+        }
+      },
+      "ContractStorage": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "type": "object",
+            "properties": {
+              "contract": {
+                "type": "string"
+              },
+              "time": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "height": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "block": {
+                "type": "string"
+              }
+            }
+          },
+          "value": {
+            "type": "object",
+            "properties": {
+              "document_storage": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/DocumentItem"
+                }
+              },
+              "ledger": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/LedgerItem"
+                }
+              },
+              "owner": {
+                "type": "string"
+              },
+              "paused": {
+                "type": "boolean"
+              },
+              "token_metadata": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/TokenMetadata"
+                }
+              },
+              "whitelist": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "whitelist_admins": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "whitelisters": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
