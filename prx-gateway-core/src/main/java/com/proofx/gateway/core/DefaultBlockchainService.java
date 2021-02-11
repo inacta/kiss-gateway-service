@@ -3,6 +3,7 @@ package com.proofx.gateway.core;
 import com.proofx.gateway.api.v1.model.blockchain.TokenAmountResponse;
 import com.proofx.gateway.api.v1.model.nodeserver.Status;
 import com.proofx.gateway.core.remote.RemoteServiceBuilder;
+import io.vertx.ext.web.RoutingContext;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -13,7 +14,7 @@ import org.tezosj.exceptions.InvalidAddressException;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import java.lang.reflect.InvocationTargetException;
+import javax.ws.rs.core.Context;
 
 /**
  * The default functional implementation of the REST endpoint for the Blockchain service
@@ -24,18 +25,22 @@ import java.lang.reflect.InvocationTargetException;
 @RequestScoped
 public class DefaultBlockchainService {
 
-    @ConfigProperty(name="provider")
+    @ConfigProperty(name = "provider")
     String provider;
 
-    @ConfigProperty(name="mnemonic")
+    @ConfigProperty(name = "mnemonic")
     String mnemonic;
 
-    @ConfigProperty(name="passPhrase")
+    @ConfigProperty(name = "passPhrase")
     String passPhrase;
 
     private final RemoteServiceBuilder remoteServiceBuilder;
     private static final Logger LOG = LoggerFactory.getLogger(DefaultBlockchainService.class);
     private final TezosJ tezosJ;
+
+    @Context
+    @Inject
+    RoutingContext routingContext;
 
     @Inject
     DefaultBlockchainService(final RemoteServiceBuilder remoteServiceBuilder) {
@@ -45,13 +50,16 @@ public class DefaultBlockchainService {
     }
 
     public TokenAmountResponse getTokenAmount(String contractAddress, String address) {
+        if (!routingContext.request().getHeader("Authorization").equals("810887b3-29dc-4cad-85ab-e7b1ae765ff8")) {
+            return new TokenAmountResponse(Status.ERROR, "Unauthorized");
+        }
         FA1_2Contract contract;
         try {
             contract = this.tezosJ.contract.at(contractAddress, FA1_2Contract.class);
-        } catch (IllegalAccessException | NoSuchMethodException | InstantiationException e) {
-            return new TokenAmountResponse(Status.ERROR, "Internal Server Error");
-        } catch (InvocationTargetException e) {
+        } catch (IllegalArgumentException e) {
             return new TokenAmountResponse(Status.ERROR, "invalid contract address");
+        } catch (Exception e) {
+            return new TokenAmountResponse(Status.ERROR, "Internal Server Error");
         }
         try {
             this.tezosJ.util.checkAddress(address);

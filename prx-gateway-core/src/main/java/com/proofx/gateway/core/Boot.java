@@ -12,7 +12,6 @@ import org.slf4j.event.Level;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 /**

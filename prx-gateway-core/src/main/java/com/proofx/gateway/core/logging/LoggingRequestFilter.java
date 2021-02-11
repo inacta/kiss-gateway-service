@@ -1,23 +1,15 @@
 package com.proofx.gateway.core.logging;
 
-import com.proofx.gateway.api.v1.model.BlockchainServiceRuntimeException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.http.HttpServerRequest;
-import org.jboss.resteasy.core.interception.jaxrs.PostMatchContainerRequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.ext.Provider;
-import java.util.Arrays;
-import java.util.Map;
 
-import static com.proofx.gateway.api.v1.model.ErrorResponseMessage.UNAUTHORIZED_NO_TOKEN_PROVIDED;
 import static java.util.Base64.getDecoder;
 
 /**

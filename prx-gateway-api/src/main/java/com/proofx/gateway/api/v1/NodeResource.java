@@ -1,10 +1,8 @@
 package com.proofx.gateway.api.v1;
 
-import com.proofx.gateway.api.v1.model.StatusResponse;
 import com.proofx.gateway.api.v1.model.nodeserver.*;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;

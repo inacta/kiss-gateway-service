@@ -79,6 +79,12 @@
         <artifactId>prx-gateway-core</artifactId>
         <version>${project.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>org</groupId>
+        <artifactId>tezosj</artifactId>
+        <version>1.0-SNAPSHOT</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -121,6 +127,7 @@
   </build>
 
   <modules>
+    <module>TezosJ</module>
     <module>prx-gateway-api</module>
     <module>prx-gateway-core</module>
     <module>prx-gateway-script</module>

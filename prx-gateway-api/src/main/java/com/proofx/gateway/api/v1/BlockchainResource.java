@@ -3,11 +3,10 @@ package com.proofx.gateway.api.v1;
 import com.proofx.gateway.api.v1.model.blockchain.TokenAmountResponse;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import javax.annotation.security.PermitAll;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 /**

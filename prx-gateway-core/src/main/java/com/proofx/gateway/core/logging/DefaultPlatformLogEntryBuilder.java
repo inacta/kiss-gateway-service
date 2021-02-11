@@ -1,13 +1,11 @@
 package com.proofx.gateway.core.logging;
 
-import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.core.Context;
-
-//import org.eclipse.microprofile.jwt.Claim;
+import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
-import io.vertx.ext.web.RoutingContext;
+import javax.enterprise.context.RequestScoped;
+import javax.ws.rs.core.Context;
 
 /**
  * The default log-entry builder for this platform-service
