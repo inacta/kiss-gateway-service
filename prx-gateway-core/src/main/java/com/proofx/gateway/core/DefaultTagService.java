@@ -103,9 +103,8 @@ public class DefaultTagService {
             }
             return Arrays.equals(cmacMirror, sdmmac);
         } catch (Exception e) {
-            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
 

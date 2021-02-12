@@ -25,9 +25,8 @@ public class Helpers {
             cipher.init(Cipher.ENCRYPT_MODE, keySpec);
             return cipher.doFinal(original);
         } catch (Exception e) {
-            e.printStackTrace();
+            return new byte[0];
         }
-        return new byte[0];
     }
 
     // Decryption routine
@@ -39,9 +38,8 @@ public class Helpers {
 
             return cipher.doFinal(encrypted);
         } catch (Exception e) {
-            e.printStackTrace();
+            return new byte[0];
         }
-        return new byte[0];
     }
 
     public static boolean isJSONObject(String s) {
