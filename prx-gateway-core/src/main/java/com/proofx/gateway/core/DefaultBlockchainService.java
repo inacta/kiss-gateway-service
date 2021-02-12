@@ -2,12 +2,12 @@ package com.proofx.gateway.core;
 
 import com.proofx.gateway.api.v1.model.blockchain.TokenAmountResponse;
 import com.proofx.gateway.api.v1.model.nodeserver.Status;
+import com.proofx.gateway.tezosj.TezosJ;
+import com.proofx.gateway.tezosj.contracts.FA1_2Contract;
+import com.proofx.gateway.tezosj.exceptions.InvalidAddressException;
 import io.vertx.ext.web.RoutingContext;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.json.JSONObject;
-import org.tezosj.TezosJ;
-import org.tezosj.contracts.FA1_2Contract;
-import org.tezosj.exceptions.InvalidAddressException;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;

@@ -1,15 +1,13 @@
-package org.tezosj.core;
+package com.proofx.gateway.tezosj.core;
 
-import com.goterl.lazycode.lazysodium.LazySodiumJava;
-import com.goterl.lazycode.lazysodium.SodiumJava;
+import com.proofx.gateway.tezosj.TezosJ;
+import com.proofx.gateway.tezosj.exceptions.NoWalletSetException;
+import com.proofx.gateway.tezosj.exceptions.TezosJRuntimeException;
+import com.proofx.gateway.tezosj.util.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.crypto.MnemonicCode;
 import org.json.JSONObject;
-import org.tezosj.TezosJ;
-import org.tezosj.exceptions.NoWalletSetException;
-import org.tezosj.exceptions.TezosJRuntimeException;
-import org.tezosj.util.*;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -19,14 +17,13 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
-import static org.tezosj.util.Global.RAND_SEED;
-import static org.tezosj.util.Global.TZJ_KEY_ALIAS;
-import static org.tezosj.util.Helpers.*;
+import static com.proofx.gateway.tezosj.util.Global.RAND_SEED;
+import static com.proofx.gateway.tezosj.util.Global.TZJ_KEY_ALIAS;
+import static com.proofx.gateway.tezosj.util.Helpers.*;
 
 @SuppressWarnings({"java:S5542"})
 public class Accounts {

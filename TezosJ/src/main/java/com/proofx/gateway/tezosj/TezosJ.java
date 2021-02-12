@@ -1,7 +1,7 @@
-package org.tezosj;
+package com.proofx.gateway.tezosj;
 
-import org.tezosj.core.*;
-import org.tezosj.util.Global;
+import com.proofx.gateway.tezosj.core.*;
+import com.proofx.gateway.tezosj.util.Global;
 
 public class TezosJ {
 

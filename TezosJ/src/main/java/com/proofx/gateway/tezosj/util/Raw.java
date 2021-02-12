@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.tezosj.util;
+package com.proofx.gateway.tezosj.util;
 
 public class Raw implements Encoder {
 

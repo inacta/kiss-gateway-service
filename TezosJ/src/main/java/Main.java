@@ -1,6 +1,6 @@
+import com.proofx.gateway.tezosj.TezosJ;
+import com.proofx.gateway.tezosj.contracts.FA1_2Contract;
 import org.json.JSONObject;
-import org.tezosj.TezosJ;
-import org.tezosj.contracts.FA1_2Contract;
 
 import java.math.BigDecimal;
 

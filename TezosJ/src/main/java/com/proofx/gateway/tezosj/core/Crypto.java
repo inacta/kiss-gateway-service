@@ -1,15 +1,14 @@
-package org.tezosj.core;
+package com.proofx.gateway.tezosj.core;
 
 import com.goterl.lazycode.lazysodium.LazySodiumJava;
 import com.goterl.lazycode.lazysodium.SodiumJava;
-import org.tezosj.TezosJ;
-import org.tezosj.exceptions.NoWalletSetException;
-import org.tezosj.util.Base58Check;
-import org.tezosj.util.EncryptedKeys;
+import com.proofx.gateway.tezosj.TezosJ;
+import com.proofx.gateway.tezosj.exceptions.NoWalletSetException;
+import com.proofx.gateway.tezosj.util.Base58Check;
+import com.proofx.gateway.tezosj.util.EncryptedKeys;
+import com.proofx.gateway.tezosj.util.Helpers;
 
 import java.util.Arrays;
-
-import static org.tezosj.util.Helpers.decryptBytes;
 
 public class Crypto {
 
@@ -29,7 +28,7 @@ public class Crypto {
         EncryptedKeys keys = this.tezosJ.accounts.getEncKeys();
         // Access wallet keys to have authorization to perform the operation.
         byte[] byteSk = keys.getEncPrivateKey();
-        byte[] decSkBytes = decryptBytes(byteSk, this.tezosJ.accounts.encryptionKey(keys));
+        byte[] decSkBytes = Helpers.decryptBytes(byteSk, this.tezosJ.accounts.encryptionKey(keys));
 
         // First, we remove the edsk prefix from the decoded private key bytes.
         byte[] edskPrefix = {(byte) 43, (byte) 246, (byte) 78, (byte) 7};

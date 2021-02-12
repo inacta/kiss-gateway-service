@@ -1,4 +1,4 @@
-package org.tezosj.model;
+package com.proofx.gateway.tezosj.model;
 
 public class SignedOperationGroup {
 

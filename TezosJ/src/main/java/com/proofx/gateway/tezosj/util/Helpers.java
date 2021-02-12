@@ -1,4 +1,4 @@
-package org.tezosj.util;
+package com.proofx.gateway.tezosj.util;
 
 import org.json.JSONArray;
 import org.json.JSONException;

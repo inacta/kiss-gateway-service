@@ -1,4 +1,4 @@
-package org.tezosj.exceptions;
+package com.proofx.gateway.tezosj.exceptions;
 
 public class TezosJRuntimeException extends RuntimeException {
     public TezosJRuntimeException(String s) {

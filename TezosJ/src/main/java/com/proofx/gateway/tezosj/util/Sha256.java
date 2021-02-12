@@ -1,6 +1,6 @@
-package org.tezosj.util;
+package com.proofx.gateway.tezosj.util;
 
-import org.tezosj.exceptions.TezosJRuntimeException;
+import com.proofx.gateway.tezosj.exceptions.TezosJRuntimeException;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

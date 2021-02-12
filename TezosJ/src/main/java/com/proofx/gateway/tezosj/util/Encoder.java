@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.tezosj.util;
+package com.proofx.gateway.tezosj.util;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;

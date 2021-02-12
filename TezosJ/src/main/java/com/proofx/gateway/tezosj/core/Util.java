@@ -1,7 +1,7 @@
-package org.tezosj.core;
+package com.proofx.gateway.tezosj.core;
 
-import org.tezosj.exceptions.InvalidAddressException;
-import org.tezosj.util.Base58Check;
+import com.proofx.gateway.tezosj.exceptions.InvalidAddressException;
+import com.proofx.gateway.tezosj.util.Base58Check;
 
 public class Util {
 

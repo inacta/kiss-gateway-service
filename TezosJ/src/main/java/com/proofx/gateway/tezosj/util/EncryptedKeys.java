@@ -1,6 +1,4 @@
-package org.tezosj.util;
-
-import com.goterl.lazycode.lazysodium.LazySodiumJava;
+package com.proofx.gateway.tezosj.util;
 
 /**
  * Created by Milfont on 31/07/2018.

@@ -1,22 +1,18 @@
-package org.tezosj.core;
+package com.proofx.gateway.tezosj.core;
 
 import com.goterl.lazycode.lazysodium.LazySodiumJava;
 import com.goterl.lazycode.lazysodium.SodiumJava;
+import com.proofx.gateway.tezosj.TezosJ;
+import com.proofx.gateway.tezosj.exceptions.NoWalletSetException;
+import com.proofx.gateway.tezosj.exceptions.TezosJRuntimeException;
+import com.proofx.gateway.tezosj.model.SignedOperationGroup;
+import com.proofx.gateway.tezosj.util.*;
 import okhttp3.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.tezosj.TezosJ;
-import org.tezosj.exceptions.NoWalletSetException;
-import org.tezosj.exceptions.TezosJRuntimeException;
-import org.tezosj.model.SignedOperationGroup;
-import org.tezosj.util.Base58Check;
-import org.tezosj.util.Encoder;
-import org.tezosj.util.EncryptedKeys;
-import org.tezosj.util.Global;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
@@ -29,10 +25,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static org.tezosj.util.Global.OPERATION_KIND_TRANSACTION;
-import static org.tezosj.util.Global.UTEZ;
-import static org.tezosj.util.Helpers.*;
 
 @SuppressWarnings({"java:S1192", "java:S3776", "java:S107", "java:S1172", "java:S3740"})
 public class Gateway {
@@ -135,7 +127,7 @@ public class Gateway {
         // Check if address has enough funds to do the transfer operation.
         JSONObject balance = getBalance(from);
         if (balance.has(RESULT)) {
-            BigDecimal bdAmount = amount.multiply(BigDecimal.valueOf(UTEZ));
+            BigDecimal bdAmount = amount.multiply(BigDecimal.valueOf(Global.UTEZ));
             BigDecimal total = new BigDecimal(((balance.getString(RESULT).replace("\n", "")).replace("\"", "").replace("'", "")));
             if (total.compareTo(bdAmount) < 0) // Returns -1 if value is less than amount.
             {
@@ -175,13 +167,13 @@ public class Gateway {
         }
 
         transaction.put("destination", contract);
-        transaction.put("amount", (String.valueOf(roundedAmount.multiply(BigDecimal.valueOf(UTEZ)).toBigInteger())));
+        transaction.put("amount", (String.valueOf(roundedAmount.multiply(BigDecimal.valueOf(Global.UTEZ)).toBigInteger())));
         transaction.put("storage_limit", storageLimit);
         transaction.put("gas_limit", gasLimit);
         transaction.put("counter", String.valueOf(counter + 1));
-        transaction.put("fee", (String.valueOf(roundedFee.multiply(BigDecimal.valueOf(UTEZ)).toBigInteger())));
+        transaction.put("fee", (String.valueOf(roundedFee.multiply(BigDecimal.valueOf(Global.UTEZ)).toBigInteger())));
         transaction.put("source", from);
-        transaction.put("kind", OPERATION_KIND_TRANSACTION);
+        transaction.put("kind", Global.OPERATION_KIND_TRANSACTION);
 
 
         JSONObject myParams = null;
@@ -289,7 +281,7 @@ public class Gateway {
         JSONObject balance = getBalance(from);
 
         if (balance.has("result")) {
-            BigDecimal bdAmount = amount.multiply(BigDecimal.valueOf(UTEZ));
+            BigDecimal bdAmount = amount.multiply(BigDecimal.valueOf(Global.UTEZ));
             BigDecimal total = new BigDecimal(((balance.getString("result").replace("\n", "")).replace("\"", "").replace("'", "")));
             if (total.compareTo(bdAmount) < 0) // Returns -1 if value is less than amount.
             {
@@ -331,13 +323,13 @@ public class Gateway {
         }
 
         transaction.put("destination", to);
-        transaction.put("amount", (String.valueOf(roundedAmount.multiply(BigDecimal.valueOf(UTEZ)).toBigInteger())));
+        transaction.put("amount", (String.valueOf(roundedAmount.multiply(BigDecimal.valueOf(Global.UTEZ)).toBigInteger())));
         transaction.put("storage_limit", storageLimit);
         transaction.put("gas_limit", gasLimit);
         transaction.put("counter", String.valueOf(counter + 1));
-        transaction.put("fee", (String.valueOf(roundedFee.multiply(BigDecimal.valueOf(UTEZ)).toBigInteger())));
+        transaction.put("fee", (String.valueOf(roundedFee.multiply(BigDecimal.valueOf(Global.UTEZ)).toBigInteger())));
         transaction.put("source", from);
-        transaction.put("kind", OPERATION_KIND_TRANSACTION);
+        transaction.put("kind", Global.OPERATION_KIND_TRANSACTION);
 
         operations.put(transaction);
 
@@ -363,7 +355,7 @@ public class Gateway {
 
         if (opResult.get("result").toString().length() == 0) {
             JSONObject injectedOperation = injectOperation(signedOpGroup);
-            if (isJSONArray(injectedOperation.toString())) {
+            if (Helpers.isJSONArray(injectedOperation.toString())) {
                 if (((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).has("error")) {
                     String err = (String) ((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).get("error");
                     String reason = "There were errors: '" + err + "'";
@@ -381,9 +373,9 @@ public class Gateway {
                     result.put("result", "");
                 }
 
-            } else if (isJSONObject(injectedOperation.toString())) {
+            } else if (Helpers.isJSONObject(injectedOperation.toString())) {
                 if (injectedOperation.has("result")) {
-                    if (isJSONArray(injectedOperation.get("result").toString())) {
+                    if (Helpers.isJSONArray(injectedOperation.get("result").toString())) {
                         if (((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).has("error")) {
                             String err = (String) ((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0))
                                     .get("error");
@@ -454,7 +446,7 @@ public class Gateway {
         JSONArray result = new JSONArray(new JSONObject(firstApplied).get("result").toString());
         JSONObject firstObject = (JSONObject) result.get(0);
 
-        if (isJSONObject(firstObject.toString())) {
+        if (Helpers.isJSONObject(firstObject.toString())) {
             JSONObject first = new JSONObject(firstObject.toString());
             if (first.has("kind") && first.has("id")) {
                 returned.put(RESULT, "There were errors: kind '" + first.getString("kind") + "' id '" + first.getString("id") + "'");
@@ -462,7 +454,7 @@ public class Gateway {
             }
         }
 
-        if (isJSONArray(firstObject.toString())) {
+        if (Helpers.isJSONArray(firstObject.toString())) {
             int elements = ((JSONArray) firstObject.get("contents")).length();
             for (int i = 0; i < elements; i++) {
                 JSONObject operationResult = ((JSONObject) ((JSONObject) (((JSONObject) (((JSONArray) firstObject.get("contents")).get(i))).get("metadata"))).get("operation_result"));
@@ -536,9 +528,9 @@ public class Gateway {
             Response response = client.newCall(request).execute();
             String strResponse = response.body().string();
 
-            if (isJSONObject(strResponse)) {
+            if (Helpers.isJSONObject(strResponse)) {
                 result = new JSONObject(strResponse);
-            } else if (isJSONArray(strResponse)) {
+            } else if (Helpers.isJSONArray(strResponse)) {
                 JSONArray myJSONArray = new JSONArray(strResponse);
                 result = new JSONObject();
                 result.put(RESULT, myJSONArray);
@@ -643,7 +635,7 @@ public class Gateway {
         EncryptedKeys encKeys = this.tezosJ.accounts.getEncKeys();
         // Get public key from encKeys.
         byte[] bytePk = encKeys.getEncPublicKey();
-        String publicKey = new String(decryptBytes(bytePk, this.tezosJ.accounts.encryptionKey(encKeys)));
+        String publicKey = new String(Helpers.decryptBytes(bytePk, this.tezosJ.accounts.encryptionKey(encKeys)));
 
         // If Manager key is not revealed for account...
         if (!isManagerKeyRevealedForAccount(blockHead, pkh)) {
@@ -651,7 +643,7 @@ public class Gateway {
             BigDecimal roundedFee = fee.setScale(6, RoundingMode.HALF_UP);
             revealOp.put("kind", "reveal");
             revealOp.put("source", pkh);
-            revealOp.put("fee", (String.valueOf(roundedFee.multiply(BigDecimal.valueOf(UTEZ)).toBigInteger())));
+            revealOp.put("fee", (String.valueOf(roundedFee.multiply(BigDecimal.valueOf(Global.UTEZ)).toBigInteger())));
             revealOp.put("counter", String.valueOf(counter + 1));
             revealOp.put("gas_limit", "15400");
             revealOp.put("storage_limit", "300");

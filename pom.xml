@@ -81,9 +81,9 @@
       </dependency>
 
       <dependency>
-        <groupId>org</groupId>
+        <groupId>com.proofx.gateway</groupId>
         <artifactId>tezosj</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${project.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

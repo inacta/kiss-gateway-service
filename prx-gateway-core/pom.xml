@@ -245,7 +245,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org</groupId>
+            <groupId>com.proofx.gateway</groupId>
             <artifactId>tezosj</artifactId>
         </dependency>
     </dependencies>

@@ -1,8 +1,8 @@
-package org.tezosj.contracts;
+package com.proofx.gateway.tezosj.contracts;
 
+import com.proofx.gateway.tezosj.TezosJ;
+import com.proofx.gateway.tezosj.exceptions.InvalidAddressException;
 import org.json.JSONObject;
-import org.tezosj.TezosJ;
-import org.tezosj.exceptions.InvalidAddressException;
 
 import java.math.BigDecimal;
 

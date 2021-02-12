@@ -1,4 +1,4 @@
-package org.tezosj.util;
+package com.proofx.gateway.tezosj.util;
 
 import okhttp3.OkHttpClient;
 import okhttp3.OkHttpClient.Builder;
