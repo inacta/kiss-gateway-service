@@ -1,8 +1,21 @@
 package com.proofx.gateway.api.v1.model;
 
+
+/**
+ * Status Response
+ *
+ * @author ProofX
+ * @since 1.0.0
+ */
 public class StatusResponse {
     String status;
 
+
+    /**
+     * Initialize status response
+     *
+     * @param status status
+     */
     public StatusResponse(String status) {
         this.status = status;
     }

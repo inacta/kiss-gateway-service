@@ -1,12 +1,12 @@
 package com.proofx.gateway.core.logging;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is the interceptor is activated with the {@link ExceptionLogged} annotation and does logging all thrown exceptions of all methods in a class or a

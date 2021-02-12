@@ -12,7 +12,6 @@ import org.slf4j.event.Level;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 /**
@@ -47,8 +46,6 @@ public class Boot {
                 executor.setStreamHandler(psh);
 
                 LOG.info("Start node server");
-//                var envs = EnvironmentUtils.getProcEnvironment();
-//                privateKey.ifPresent(s -> EnvironmentUtils.addVariableToEnvironment(envs, "PRIVATE_KEY=" + s));
                 executor.execute(cmdLine);
             } catch (Exception e) {
                 LOG.error("Could not start node server", e);

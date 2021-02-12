@@ -1,5 +1,11 @@
 package com.proofx.gateway.api.v1.model;
 
+/**
+ * Parameters when adding a new tag
+ *
+ * @author ProofX
+ * @since 1.0.0
+ */
 public class NewTagParams {
     String uuid;
     String secret;

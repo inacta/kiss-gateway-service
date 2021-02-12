@@ -1,10 +1,8 @@
 package com.proofx.gateway.api.v1;
 
-import com.proofx.gateway.api.v1.model.StatusResponse;
 import com.proofx.gateway.api.v1.model.nodeserver.*;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -18,15 +16,6 @@ import javax.ws.rs.core.Response;
 @RegisterRestClient
 @Path("/xtzsmartcontract/v1")
 public interface NodeResource {
-
-    /**
-     * A method for getting an endpoint property-key that should be used for configuration on platform
-     *
-     * @return property-key
-     */
-    static String getEndpointPropertyKey() {
-        return "NODE_SERVICE_ENDPOINT";
-    }
 
     /**
      * ping

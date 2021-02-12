@@ -1,13 +1,11 @@
 package com.proofx.gateway.core.logging;
 
-import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.core.Context;
-
-//import org.eclipse.microprofile.jwt.Claim;
+import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
-import io.vertx.ext.web.RoutingContext;
+import javax.enterprise.context.RequestScoped;
+import javax.ws.rs.core.Context;
 
 /**
  * The default log-entry builder for this platform-service
@@ -22,9 +20,6 @@ public class DefaultPlatformLogEntryBuilder implements PlatformLogEntryBuilder {
 
     private String logEntry;
 
-//    @Claim("preferred_username")
-//    String preferredUsername;
-
     DefaultPlatformLogEntryBuilder(@Context final RoutingContext routingContext) {
 
         this.tenant = routingContext.request().headers().contains("tenant") ? routingContext.request().getHeader("tenant") : "dev";
@@ -36,7 +31,6 @@ public class DefaultPlatformLogEntryBuilder implements PlatformLogEntryBuilder {
         MDC.put("logCallerInfo", getLogCallerInfo());
         MDC.put("service-id", "incat-blockchain-service");
         MDC.put("tenant-id", this.tenant);
-//        MDC.put("user-id", this.preferredUsername);
         MDC.put("message-id", message.getId());
 
         this.logEntry = message.getMessage(messageParameters);

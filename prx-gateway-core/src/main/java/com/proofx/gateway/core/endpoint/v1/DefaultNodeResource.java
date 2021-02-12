@@ -8,6 +8,13 @@ import com.proofx.gateway.core.configuration.PropertyService;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
+
+/**
+ * class
+ *
+ * @author ProofX
+ * @since 1.0.0
+ */
 public class DefaultNodeResource implements NodeResource {
 
     private PropertyService propertyService;

@@ -2,32 +2,60 @@ package com.proofx.gateway.core.util;
 
 import com.google.common.primitives.Bytes;
 
+/**
+ * Utility class for nfc tag verification
+ *
+ * @author ProofX
+ * @since 1.0.0
+ */
 public class TagUtils {
 
+    private TagUtils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     static final String HEXES = "0123456789ABCDEF";
-    public static String bytesToString( byte [] raw ) {
-        if ( raw == null ) {
+
+    /**
+     * Convert byte array to string
+     *
+     * @param raw byte array
+     * @return string
+     */
+    public static String bytesToString(byte[] raw) {
+        if (raw == null) {
             return null;
         }
-        final StringBuilder hex = new StringBuilder( 2 * raw.length );
-        for ( final byte b : raw ) {
+        final StringBuilder hex = new StringBuilder(2 * raw.length);
+        for (final byte b : raw) {
             hex.append(HEXES.charAt((b & 0xF0) >> 4))
                     .append(HEXES.charAt((b & 0x0F)));
         }
         return hex.toString();
     }
 
-    /* s must be an even-length string. */
+    /**
+     * Convert string representing byte array to byte array
+     *
+     * @param s string
+     * @return byte array
+     */
     public static byte[] stringToBytes(String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
             data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i+1), 16));
+                    + Character.digit(s.charAt(i + 1), 16));
         }
         return data;
     }
 
+    /**
+     * left shift byte array
+     *
+     * @param data byte array
+     * @return shifted byte array
+     */
     public static byte[] shiftLeft(byte[] data) {
 
         StringBuilder sb = new StringBuilder();
@@ -48,7 +76,13 @@ public class TagUtils {
         return a;
     }
 
-    // Pad byte array to n*multiple size
+    /**
+     * Pad byte array to n*multiple size
+     *
+     * @param data byte array
+     * @param multiple multiple
+     * @return padded byte array
+     */
     public static byte[] pad(byte[] data, int multiple) {
 
         if (multiple <= 0) {
@@ -70,6 +104,13 @@ public class TagUtils {
         return Bytes.concat(data, new byte[padding]);
     }
 
+    /**
+     * xor 2 byte arrays
+     *
+     * @param data1 byte array 1
+     * @param data2 byte array 2
+     * @return xored byte array
+     */
     public static byte[] xor(byte[] data1, byte[] data2) {
         byte[] result = new byte[Math.max(data1.length, data2.length)];
         for (int i = 0; i < result.length; i++) {
@@ -79,8 +120,14 @@ public class TagUtils {
         return result;
     }
 
-    public static byte[] MSBtoLSB(byte[] arr) {
-        for(int i = 0; i < arr.length / 2; i++) {
+    /**
+     * convert byte array from most significant byte (MSB) to least (LSB)
+     *
+     * @param arr byte array
+     * @return converted byte array
+     */
+    public static byte[] msbToLsb(byte[] arr) {
+        for (int i = 0; i < arr.length / 2; i++) {
             byte temp = arr[i];
             arr[i] = arr[arr.length - i - 1];
             arr[arr.length - i - 1] = temp;

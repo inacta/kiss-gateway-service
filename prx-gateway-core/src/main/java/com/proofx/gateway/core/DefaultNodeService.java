@@ -6,9 +6,16 @@ import com.proofx.gateway.core.remote.RemoteServiceBuilder;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
+
+/**
+ * class
+ *
+ * @author ProofX
+ * @since 1.0.0
+ */
 @RequestScoped
 public class DefaultNodeService {
     private final RemoteServiceBuilder remoteServiceBuilder;

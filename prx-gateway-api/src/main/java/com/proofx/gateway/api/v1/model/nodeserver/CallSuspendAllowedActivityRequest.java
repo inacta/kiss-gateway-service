@@ -1,5 +1,11 @@
 package com.proofx.gateway.api.v1.model.nodeserver;
 
+/**
+ * class
+ *
+ * @author ProofX
+ * @since 1.0.0
+ */
 public class CallSuspendAllowedActivityRequest {
     private String contractAddress;
     private Integer activity;
