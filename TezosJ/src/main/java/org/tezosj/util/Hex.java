@@ -17,6 +17,8 @@
 
 package org.tezosj.util;
 
+import org.tezosj.exceptions.TezosJRuntimeException;
+
 /**
  * Converts hexadecimal Strings.
  * This class is thread-safe.
@@ -24,6 +26,7 @@ package org.tezosj.util;
  * @version $Id$
  * @since 1.1
  */
+@SuppressWarnings({"java:S127"})
 public class Hex implements Encoder {
 
     /**
@@ -50,7 +53,7 @@ public class Hex implements Encoder {
 
         final int len = (data == null) ? 0 : data.length;
         if ((len & 0x01) != 0) {
-            throw new RuntimeException("Odd number of characters.");
+            throw new TezosJRuntimeException("Odd number of characters.");
         }
 
         final byte[] out = new byte[len >> 1];
@@ -144,7 +147,7 @@ public class Hex implements Encoder {
     private static int toDigit(final char ch, final int index) {
         final int digit = Character.digit(ch, 16);
         if (digit == -1) {
-            throw new RuntimeException("Illegal hexadecimal character " + ch + " at index " + index);
+            throw new TezosJRuntimeException("Illegal hexadecimal character " + ch + " at index " + index);
         }
         return digit;
     }

@@ -46,8 +46,6 @@ public class Boot {
                 executor.setStreamHandler(psh);
 
                 LOG.info("Start node server");
-//                var envs = EnvironmentUtils.getProcEnvironment();
-//                privateKey.ifPresent(s -> EnvironmentUtils.addVariableToEnvironment(envs, "PRIVATE_KEY=" + s));
                 executor.execute(cmdLine);
             } catch (Exception e) {
                 LOG.error("Could not start node server", e);

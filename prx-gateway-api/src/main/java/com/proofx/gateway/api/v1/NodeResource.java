@@ -18,15 +18,6 @@ import javax.ws.rs.core.Response;
 public interface NodeResource {
 
     /**
-     * A method for getting an endpoint property-key that should be used for configuration on platform
-     *
-     * @return property-key
-     */
-    static String getEndpointPropertyKey() {
-        return "NODE_SERVICE_ENDPOINT";
-    }
-
-    /**
      * ping
      *
      * @return response

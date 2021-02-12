@@ -4,8 +4,6 @@ import org.tezosj.TezosJ;
 import org.tezosj.contracts.Contract;
 import org.tezosj.exceptions.InvalidAddressException;
 
-import java.lang.reflect.InvocationTargetException;
-
 public class ContractFactory {
     private final TezosJ tezosJ;
 

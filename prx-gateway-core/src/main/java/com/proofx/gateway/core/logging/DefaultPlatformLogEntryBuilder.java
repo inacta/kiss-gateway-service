@@ -20,9 +20,6 @@ public class DefaultPlatformLogEntryBuilder implements PlatformLogEntryBuilder {
 
     private String logEntry;
 
-//    @Claim("preferred_username")
-//    String preferredUsername;
-
     DefaultPlatformLogEntryBuilder(@Context final RoutingContext routingContext) {
 
         this.tenant = routingContext.request().headers().contains("tenant") ? routingContext.request().getHeader("tenant") : "dev";
@@ -34,7 +31,6 @@ public class DefaultPlatformLogEntryBuilder implements PlatformLogEntryBuilder {
         MDC.put("logCallerInfo", getLogCallerInfo());
         MDC.put("service-id", "incat-blockchain-service");
         MDC.put("tenant-id", this.tenant);
-//        MDC.put("user-id", this.preferredUsername);
         MDC.put("message-id", message.getId());
 
         this.logEntry = message.getMessage(messageParameters);

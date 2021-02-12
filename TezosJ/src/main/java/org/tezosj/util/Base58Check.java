@@ -1,5 +1,7 @@
 package org.tezosj.util;
 
+import org.tezosj.exceptions.TezosJRuntimeException;
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -7,12 +9,15 @@ import java.util.Arrays;
 import java.util.Locale;
 
 public class Base58Check {
-    private static String ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+
+    private Base58Check() {}
+
+    private static final String ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
     private static char[] ALPHABET_ARRAY = ALPHABET.toCharArray();
     private static BigInteger BASE_SIZE = BigInteger.valueOf(ALPHABET_ARRAY.length);
     private static int CHECKSUM_SIZE = 4;
 
-    public static String encode(byte[] data) throws NoSuchAlgorithmException {
+    public static String encode(byte[] data) {
         return encodePlain(addChecksum(data));
     }
 
@@ -46,7 +51,7 @@ public class Base58Check {
     }
 
 
-    public static byte[] decode(String encoded) throws NoSuchAlgorithmException {
+    public static byte[] decode(String encoded) {
         byte[] valueWithChecksum = decodePlain(encoded);
 
         byte[] value = verifyAndRemoveChecksum(valueWithChecksum);
@@ -105,7 +110,7 @@ public class Base58Check {
         return decoded;
     }
 
-    private static byte[] verifyAndRemoveChecksum(byte[] data) throws NoSuchAlgorithmException {
+    private static byte[] verifyAndRemoveChecksum(byte[] data) {
         byte[] value = Arrays.copyOfRange(data, 0, data.length - CHECKSUM_SIZE);
         byte[] checksum = Arrays.copyOfRange(data, data.length - CHECKSUM_SIZE, data.length);
         byte[] expectedChecksum = getChecksum(value);
@@ -113,7 +118,7 @@ public class Base58Check {
         return Arrays.equals(checksum, expectedChecksum) ? value : null;
     }
 
-    private static byte[] addChecksum(byte[] data) throws NoSuchAlgorithmException {
+    private static byte[] addChecksum(byte[] data) {
         byte[] checksum = getChecksum(data);
 
         byte[] result = new byte[data.length + checksum.length];
@@ -124,15 +129,20 @@ public class Base58Check {
         return result;
     }
 
-    private static byte[] getChecksum(byte[] data) throws NoSuchAlgorithmException {
+    private static byte[] getChecksum(byte[] data) {
         byte[] hash = hash256(data);
         hash = hash256(hash);
 
         return Arrays.copyOfRange(hash, 0, CHECKSUM_SIZE);
     }
 
-    public static byte[] hash256(byte[] data) throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
+    public static byte[] hash256(byte[] data) {
+        MessageDigest md;
+        try {
+             md = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new TezosJRuntimeException("No hashing algorithm");
+        }
 
         md.update(data);
 

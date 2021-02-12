@@ -20,15 +20,6 @@ import javax.ws.rs.core.MediaType;
 public interface BlockchainResource {
 
     /**
-     * A method for getting an endpoint property-key that should be used for configuration on platform
-     *
-     * @return property-key
-     */
-    static String getEndpointPropertyKey() {
-        return "BLOCKCHAIN_SERVICE_ENDPOINT";
-    }
-
-    /**
      * gets the token amount for the Humanity experience token
      *
      * @param contractAddress contractAddress

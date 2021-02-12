@@ -4,8 +4,6 @@ import com.proofx.gateway.api.v1.BlockchainResource;
 import com.proofx.gateway.api.v1.model.blockchain.TokenAmountResponse;
 import com.proofx.gateway.core.DefaultBlockchainService;
 import com.proofx.gateway.core.logging.ExceptionLogged;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -21,8 +19,6 @@ import javax.ws.rs.Path;
 @ExceptionLogged
 @Path("/blockchain/v1")
 public class DefaultBlockchainResource implements BlockchainResource {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultBlockchainResource.class);
 
     final DefaultBlockchainService implementationService;
 

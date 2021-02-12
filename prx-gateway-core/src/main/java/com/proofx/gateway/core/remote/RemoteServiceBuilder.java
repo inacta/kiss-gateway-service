@@ -3,9 +3,9 @@ package com.proofx.gateway.core.remote;
 import com.proofx.gateway.api.v1.NodeResource;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
-import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.core.UriBuilder;
 import java.util.HashMap;
@@ -33,7 +33,7 @@ public class RemoteServiceBuilder {
 
     private <T> T buildClient(final Class<T> resourceEndpoint, String hostWithPort, Map<String, String> headers) {
 
-        final ResteasyClient client = (ResteasyClient) ResteasyClientBuilderImpl.newBuilder().build();
+        final ResteasyClient client = (ResteasyClient) ClientBuilder.newBuilder().build();
 
         final ResteasyWebTarget target = client.target(UriBuilder.fromPath(hostWithPort));
 

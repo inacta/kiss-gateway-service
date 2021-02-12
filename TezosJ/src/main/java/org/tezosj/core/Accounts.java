@@ -1,10 +1,14 @@
 package org.tezosj.core;
 
+import com.goterl.lazycode.lazysodium.LazySodiumJava;
+import com.goterl.lazycode.lazysodium.SodiumJava;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.crypto.MnemonicCode;
 import org.json.JSONObject;
-import org.tezosj.legacy.CustomSodium;
+import org.tezosj.TezosJ;
+import org.tezosj.exceptions.NoWalletSetException;
+import org.tezosj.exceptions.TezosJRuntimeException;
 import org.tezosj.util.*;
 
 import javax.crypto.Cipher;
@@ -20,51 +24,40 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
+import static org.tezosj.util.Global.RAND_SEED;
 import static org.tezosj.util.Global.TZJ_KEY_ALIAS;
 import static org.tezosj.util.Helpers.*;
 
+@SuppressWarnings({"java:S5542"})
 public class Accounts {
 
+    private final TezosJ tezosJ;
     private EncryptedKeys encKeys = null;
 
-    public EncryptedKeys getEncKeys() throws Exception {
+    public Accounts(TezosJ tezosJ) {
+        this.tezosJ = tezosJ;
+    }
+
+    public EncryptedKeys getEncKeys() throws NoWalletSetException {
         if (encKeys == null) {
-            throw new Exception("No wallet set");
+            throw new NoWalletSetException();
         }
         return encKeys;
     }
 
     public void importWallet(String mnemonicWords, String passPhrase) {
         EncryptedKeys encryptedKeys = new EncryptedKeys();
-        // Creates a unique copy and initializes libsodium native library.
-        SecureRandom rand = new SecureRandom();
-        int randId = rand.nextInt(1000000) + 1;
-        CustomSodium sodium = new CustomSodium(String.valueOf(randId));
-        encryptedKeys.setRandSeed(randId);
-        encryptedKeys.setSodium(sodium);
         initStore(encryptedKeys, passPhrase.getBytes());
         // Cleans undesired characters from mnemonic words.
         String cleanMnemonic = mnemonicWords.replace("[", "").replace("]", "").replace(",", " ").replace("  ", " ");
         // Stores encypted mnemonic words into wallet's field.
         encryptedKeys.setMnemonicWords(encryptBytes(cleanMnemonic.getBytes(), encryptionKey(encryptedKeys)));
-//        initDomainClasses();
         generateKeys(encryptedKeys, passPhrase);
         this.encKeys = encryptedKeys;
     }
 
-    public JSONObject sign(byte[] bytes, String watermark) throws Exception {
-        EncryptedKeys keys = this.getEncKeys();
+    public JSONObject sign(byte[] bytes, String watermark) throws NoWalletSetException {
         JSONObject response = new JSONObject();
-
-        // Access wallet keys to have authorization to perform the operation.
-        byte[] byteSk = keys.getEncPrivateKey();
-        byte[] decSkBytes = decryptBytes(byteSk, this.encryptionKey(keys));
-
-        // First, we remove the edsk prefix from the decoded private key bytes.
-        byte[] edskPrefix =
-                {(byte) 43, (byte) 246, (byte) 78, (byte) 7};
-        byte[] decodedSk = Base58Check.decode(new String(decSkBytes));
-        byte[] privateKeyBytes = Arrays.copyOfRange(decodedSk, edskPrefix.length, decodedSk.length);
 
         // Then we create a work array and check if the watermark parameter has been
         // passed.
@@ -79,10 +72,10 @@ public class Accounts {
         // parameters.
         // The result will end up in the sig variable.
         byte[] hashedWorkBytes = new byte[32];
-        keys.getSodium().crypto_generichash(hashedWorkBytes, hashedWorkBytes.length, workBytes, workBytes.length, workBytes, 0);
+        this.tezosJ.crypto.genericHash(hashedWorkBytes, hashedWorkBytes.length, workBytes, workBytes.length, workBytes, 0);
 
         byte[] sig = new byte[64];
-        keys.getSodium().crypto_sign_detached(sig, null, hashedWorkBytes, hashedWorkBytes.length, privateKeyBytes);
+        this.tezosJ.crypto.sign(sig, null, hashedWorkBytes, hashedWorkBytes.length);
 
         // To create the edsig, we need to concatenate the edsig prefix with the sig and
         // then encode it.
@@ -166,9 +159,9 @@ public class Accounts {
     }
 
     // Retrieves the Public Key Hash (Tezos user address) upon user request.
-    public String getPublicKeyHash() {
+    public String getPublicKeyHash() throws NoWalletSetException {
         if (this.encKeys == null) {
-            throw new RuntimeException("Wallet not set");
+            throw new NoWalletSetException();
         }
         byte[] decrypted = decryptBytes(this.encKeys.getEncPublicKeyHash(), encryptionKey(this.encKeys));
         return new String(decrypted);
@@ -200,11 +193,11 @@ public class Accounts {
             KeyStore.SecretKeyEntry secretKeyEntry = new KeyStore.SecretKeyEntry(secretKey);
 
             KeyStore.ProtectionParameter entryPassword = new KeyStore.PasswordProtection(encP.toCharArray());
-            Global.myKeyStore.setEntry(TZJ_KEY_ALIAS + encryptedKeys.getRandSeed(), secretKeyEntry, entryPassword);
+            Global.myKeyStore.setEntry(TZJ_KEY_ALIAS + RAND_SEED, secretKeyEntry, entryPassword);
             encryptedKeys.setEncPass(encP);
             encryptedKeys.setEncIv(encryptedIv);
         } catch (Exception e) {
-            throw new RuntimeException("Could not initialize Android KeyStore.", e);
+            throw new TezosJRuntimeException("Could not initialize Android KeyStore.", e);
         }
     }
 
@@ -214,7 +207,7 @@ public class Accounts {
             keyGenerator.init(128);
             return keyGenerator.generateKey();
         } catch (NoSuchAlgorithmException e) {
-            return null;
+            throw new TezosJRuntimeException("No hashing algorithm");
         }
     }
 
@@ -229,7 +222,7 @@ public class Accounts {
 
             KeyStore.ProtectionParameter entryPassword = new KeyStore.PasswordProtection(
                     base64EncryptedPassword.toCharArray());
-            KeyStore.SecretKeyEntry entry = (KeyStore.SecretKeyEntry) Global.myKeyStore.getEntry(TZJ_KEY_ALIAS + encryptedKeys.getRandSeed(),
+            KeyStore.SecretKeyEntry entry = (KeyStore.SecretKeyEntry) Global.myKeyStore.getEntry(TZJ_KEY_ALIAS + RAND_SEED,
                     entryPassword);
 
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
@@ -239,11 +232,6 @@ public class Accounts {
             return new byte[0];
         }
 
-    }
-
-    private void initDomainClasses() {
-//        this.rpc = new Rpc();
-//        this.crypto = new Crypto();
     }
 
     // This method generates the Private Key, Public Key and Public Key hash (Tezos address).
@@ -264,7 +252,7 @@ public class Accounts {
 
         byte[] sodiumPrivateKey = zeros(32 * 2);
         byte[] sodiumPublicKey = zeros(32);
-        encryptedKeys.getSodium().crypto_sign_seed_keypair(sodiumPublicKey, sodiumPrivateKey, seed);
+        this.tezosJ.crypto.signSeedKeypair(sodiumPublicKey, sodiumPrivateKey, seed);
 
         // These are our prefixes.
         byte[] edpkPrefix =
@@ -302,7 +290,7 @@ public class Accounts {
 
         // Creates Tezos Public Key Hash (Tezos address).
         byte[] genericHash = new byte[20];
-        encryptedKeys.getSodium().crypto_generichash(genericHash, genericHash.length, sodiumPublicKey, sodiumPublicKey.length, sodiumPublicKey, 0);
+        this.tezosJ.crypto.genericHash(genericHash, genericHash.length, sodiumPublicKey, sodiumPublicKey.length, sodiumPublicKey, 0);
 
         byte[] prefixedGenericHash = new byte[23];
         System.arraycopy(tz1Prefix, 0, prefixedGenericHash, 0, 3);

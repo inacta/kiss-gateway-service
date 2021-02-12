@@ -1,6 +1,6 @@
 package org.tezosj.util;
 
-import org.tezosj.legacy.CustomSodium;
+import com.goterl.lazycode.lazysodium.LazySodiumJava;
 
 /**
  * Created by Milfont on 31/07/2018.
@@ -9,54 +9,12 @@ import org.tezosj.legacy.CustomSodium;
 // Encypted keys
 public class EncryptedKeys {
 
-    private CustomSodium sodium = null;
-    private int randSeed;
     private byte[] encPublicKey;
     private byte[] encPrivateKey;
     private byte[] encPublicKeyHash;
     private byte[] mnemonicWords;
     private String encPass;
     private String encIv;
-
-    /**
-     * Gets the value of the sodium property.
-     *
-     * @return possible object is {@link CustomSodium}
-     */
-    public CustomSodium getSodium() {
-        return sodium;
-    }
-
-    /**
-     * Sets the value of the sodium property
-     *
-     * @param sodium allowed object is {@link CustomSodium }
-     * @return the {@link EncryptedKeys}
-     */
-    public EncryptedKeys setSodium(CustomSodium sodium) {
-        this.sodium = sodium;
-        return this;
-    }
-
-    /**
-     * Gets the value of the randSeed property.
-     *
-     * @return possible object is int
-     */
-    public int getRandSeed() {
-        return randSeed;
-    }
-
-    /**
-     * Sets the value of the randSeed property
-     *
-     * @param randSeed allowed object is int
-     * @return the {@link EncryptedKeys}
-     */
-    public EncryptedKeys setRandSeed(int randSeed) {
-        this.randSeed = randSeed;
-        return this;
-    }
 
     /**
      * Gets the value of the encPublicKey property.

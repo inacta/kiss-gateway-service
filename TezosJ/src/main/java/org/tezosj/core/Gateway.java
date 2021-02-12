@@ -1,5 +1,7 @@
 package org.tezosj.core;
 
+import com.goterl.lazycode.lazysodium.LazySodiumJava;
+import com.goterl.lazycode.lazysodium.SodiumJava;
 import okhttp3.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -8,7 +10,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.tezosj.TezosJ;
-import org.tezosj.legacy.CustomSodium;
+import org.tezosj.exceptions.NoWalletSetException;
+import org.tezosj.exceptions.TezosJRuntimeException;
 import org.tezosj.model.SignedOperationGroup;
 import org.tezosj.util.Base58Check;
 import org.tezosj.util.Encoder;
@@ -16,6 +19,7 @@ import org.tezosj.util.EncryptedKeys;
 import org.tezosj.util.Global;
 
 import javax.net.ssl.SSLContext;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.InetSocketAddress;
@@ -26,12 +30,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static org.tezosj.util.Global.OPERATION_KIND_TRANSACTION;
+import static org.tezosj.util.Global.UTEZ;
 import static org.tezosj.util.Helpers.*;
 
+@SuppressWarnings({"java:S1192", "java:S3776", "java:S107", "java:S1172", "java:S3740"})
 public class Gateway {
 
     private final TezosJ tezosJ;
-    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final MediaType textPlainMT = MediaType.parse("text/plain; charset=utf-8");
     private static final Integer HTTP_TIMEOUT = 20;
     private static final String RESULT = "result";
@@ -41,19 +47,19 @@ public class Gateway {
         Global.initOkhttp();
     }
 
-    public String getChainId() throws Exception {
+    public String getChainId() {
         return ((JSONObject) query("/chains/main/chain_id", null)).get(RESULT).toString();
     }
 
-    public JSONObject getBalance(String address) throws Exception {
+    public JSONObject getBalance(String address) {
         return (JSONObject) query("/chains/main/blocks/head/context/contracts/" + address + "/balance", null);
     }
 
-    public JSONObject getAccountManagerForBlock(String blockHash, String accountID) throws Exception {
+    public JSONObject getAccountManagerForBlock(String blockHash, String accountID) {
         return (JSONObject) query("/chains/main/blocks/" + blockHash + "/context/contracts/" + accountID + "/manager_key", null);
     }
 
-    public String[] getContractEntryPoints(String contractAddress) throws Exception {
+    public String[] getContractEntryPoints(String contractAddress) {
         JSONObject response = (JSONObject) query("/chains/main/blocks/head/context/contracts/" + contractAddress + "/entrypoints", null);
 
         JSONObject entryPointsJson = (JSONObject) response.get("entrypoints");
@@ -73,9 +79,7 @@ public class Gateway {
         return entrypoints;
     }
 
-    public String[] getContractEntryPointsParameters(String contractAddress, String entrypoint, String namesOrTypes)
-            throws Exception {
-        ArrayList<String> parameters = new ArrayList<String>();
+    public String[] getContractEntryPointsParameters(String contractAddress, String entrypoint, String namesOrTypes) {
 
         // If no desired entrypoint was specified, use the "default" entrypoint.
         if ((entrypoint == null) || (entrypoint.length() == 0)) {
@@ -84,11 +88,11 @@ public class Gateway {
 
         JSONObject response = (JSONObject) query("/chains/main/blocks/head/context/contracts/" + contractAddress + "/entrypoints/" + entrypoint, null);
 
-        JSONArray paramArray = decodeParameters(response, null);
+        JSONArray paramArray = decodeParameters(response, new JSONArray());
 
         JSONObject jsonObj;
 
-        parameters = new ArrayList<String>();
+        ArrayList<String> parameters = new ArrayList<String>();
 
         if (namesOrTypes.equals("names")) {
             for (int i = 0; i < paramArray.length(); i++) {
@@ -101,10 +105,8 @@ public class Gateway {
         } else if (namesOrTypes.equals("types")) {
             for (int i = 0; i < paramArray.length(); i++) {
                 jsonObj = (JSONObject) paramArray.get(i);
-                if (jsonObj.has("prim")) {
-                    if (!(jsonObj.get("prim").toString()).contains("contract")) {
-                        parameters.add((String) jsonObj.get("prim"));
-                    }
+                if (jsonObj.has("prim") && !(jsonObj.get("prim").toString()).contains("contract")) {
+                    parameters.add((String) jsonObj.get("prim"));
                 }
             }
         }
@@ -118,8 +120,7 @@ public class Gateway {
     // Calls a contract passing parameters.
     public JSONObject callContractEntryPoint(String from, String contract, BigDecimal amount, BigDecimal fee,
                                              String gasLimit, String storageLimit, String entrypoint,
-                                             String[] parameters, boolean rawParameter, String smartContractType)
-            throws Exception {
+                                             String[] parameters, boolean rawParameter, String smartContractType) throws NoWalletSetException {
         JSONObject result = new JSONObject();
 
         BigDecimal roundedAmount = amount.setScale(6, RoundingMode.HALF_UP);
@@ -129,12 +130,12 @@ public class Gateway {
         JSONObject transaction = new JSONObject();
         JSONObject head;
         JSONObject account;
-        int counter = 0;
+        int counter;
 
         // Check if address has enough funds to do the transfer operation.
         JSONObject balance = getBalance(from);
         if (balance.has(RESULT)) {
-            BigDecimal bdAmount = amount.multiply(BigDecimal.valueOf(Global.UTEZ));
+            BigDecimal bdAmount = amount.multiply(BigDecimal.valueOf(UTEZ));
             BigDecimal total = new BigDecimal(((balance.getString(RESULT).replace("\n", "")).replace("\"", "").replace("'", "")));
             if (total.compareTo(bdAmount) < 0) // Returns -1 if value is less than amount.
             {
@@ -174,13 +175,13 @@ public class Gateway {
         }
 
         transaction.put("destination", contract);
-        transaction.put("amount", (String.valueOf(roundedAmount.multiply(BigDecimal.valueOf(Global.UTEZ)).toBigInteger())));
+        transaction.put("amount", (String.valueOf(roundedAmount.multiply(BigDecimal.valueOf(UTEZ)).toBigInteger())));
         transaction.put("storage_limit", storageLimit);
         transaction.put("gas_limit", gasLimit);
         transaction.put("counter", String.valueOf(counter + 1));
-        transaction.put("fee", (String.valueOf(roundedFee.multiply(BigDecimal.valueOf(Global.UTEZ)).toBigInteger())));
+        transaction.put("fee", (String.valueOf(roundedFee.multiply(BigDecimal.valueOf(UTEZ)).toBigInteger())));
         transaction.put("source", from);
-        transaction.put("kind", Global.OPERATION_KIND_TRANSACTION);
+        transaction.put("kind", OPERATION_KIND_TRANSACTION);
 
 
         JSONObject myParams = null;
@@ -194,7 +195,7 @@ public class Gateway {
 
             if (!Arrays.asList(contractEntrypoints).contains("default")) {
                 if (!Arrays.asList(contractEntrypoints).contains(entrypoint)) {
-                    throw new Exception("Wrong or missing entrypoint name");
+                    throw new TezosJRuntimeException("Wrong or missing entrypoint name");
                 }
             } else {
                 entrypoint = "default";
@@ -272,7 +273,78 @@ public class Gateway {
         return result;
     }
 
-    private JSONObject sendOperation(JSONArray operations) throws Exception {
+    // Sends a transaction to the Tezos node.
+    public JSONObject sendTransaction(String from, String to, BigDecimal amount, BigDecimal fee, String gasLimit,
+                                      String storageLimit) throws NoWalletSetException {
+        BigDecimal roundedAmount = amount.setScale(6, RoundingMode.HALF_UP);
+        BigDecimal roundedFee = fee.setScale(6, RoundingMode.HALF_UP);
+        JSONArray operations = new JSONArray();
+        JSONObject revealOperation;
+        JSONObject transaction = new JSONObject();
+        JSONObject head;
+        JSONObject account;
+        int counter;
+
+        // Check if address has enough funds to do the transfer operation.
+        JSONObject balance = getBalance(from);
+
+        if (balance.has("result")) {
+            BigDecimal bdAmount = amount.multiply(BigDecimal.valueOf(UTEZ));
+            BigDecimal total = new BigDecimal(((balance.getString("result").replace("\n", "")).replace("\"", "").replace("'", "")));
+            if (total.compareTo(bdAmount) < 0) // Returns -1 if value is less than amount.
+            {
+                // Not enough funds to do the transfer.
+                JSONObject returned = new JSONObject();
+                returned.put("result",
+                        "{ \"result\":\"error\", \"kind\":\"TezosJ_SDK_exception\", \"id\": \"Not enough funds\" }");
+
+                return returned;
+            }
+        }
+
+        if (gasLimit == null) {
+            gasLimit = "15400";
+        } else {
+            if ((gasLimit.length() == 0) || (gasLimit.equals("0"))) {
+                gasLimit = "15400";
+            }
+        }
+
+        if (storageLimit == null) {
+            storageLimit = "300";
+        } else {
+            if (storageLimit.length() == 0) {
+                storageLimit = "300";
+            }
+        }
+
+        head = new JSONObject(query("/chains/main/blocks/head/header", null).toString());
+        account = getAccountForBlock(head.get("hash").toString(), from);
+        counter = Integer.parseInt(account.get("counter").toString());
+
+        // Append Reveal Operation if needed.
+        revealOperation = appendRevealOperation(head, from, (counter));
+
+        if (revealOperation != null) {
+            operations.put(revealOperation);
+            counter = counter + 1;
+        }
+
+        transaction.put("destination", to);
+        transaction.put("amount", (String.valueOf(roundedAmount.multiply(BigDecimal.valueOf(UTEZ)).toBigInteger())));
+        transaction.put("storage_limit", storageLimit);
+        transaction.put("gas_limit", gasLimit);
+        transaction.put("counter", String.valueOf(counter + 1));
+        transaction.put("fee", (String.valueOf(roundedFee.multiply(BigDecimal.valueOf(UTEZ)).toBigInteger())));
+        transaction.put("source", from);
+        transaction.put("kind", OPERATION_KIND_TRANSACTION);
+
+        operations.put(transaction);
+
+        return sendOperation(operations);
+    }
+
+    private JSONObject sendOperation(JSONArray operations) throws NoWalletSetException {
         JSONObject result = new JSONObject();
         JSONObject head = (JSONObject) query("/chains/main/blocks/head/header", null);
         String forgedOperationGroup = forgeOperations(head, operations);
@@ -280,92 +352,85 @@ public class Gateway {
         // Check for errors.
         if (forgedOperationGroup.toLowerCase().contains("failed") || forgedOperationGroup.toLowerCase().contains("unexpected")
                 || forgedOperationGroup.toLowerCase().contains("missing") || forgedOperationGroup.toLowerCase().contains("error")) {
-            throw new Exception("Error while forging operation : " + forgedOperationGroup);
+            throw new TezosJRuntimeException("Error while forging operation : " + forgedOperationGroup);
         }
 
         SignedOperationGroup signedOpGroup = signOperationGroup(forgedOperationGroup);
 
-        if (signedOpGroup == null) // User cancelled the operation.
-        {
-            result.put("result", "There were errors: 'User has cancelled the operation'");
-            return result;
-        } else {
+        String operationGroupHash = computeOperationHash(signedOpGroup);
+        JSONObject appliedOp = applyOperation(head, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
+        JSONObject opResult = checkAppliedOperationResults(appliedOp);
 
-            String operationGroupHash = computeOperationHash(signedOpGroup);
-            JSONObject appliedOp = applyOperation(head, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
-            JSONObject opResult = checkAppliedOperationResults(appliedOp);
+        if (opResult.get("result").toString().length() == 0) {
+            JSONObject injectedOperation = injectOperation(signedOpGroup);
+            if (isJSONArray(injectedOperation.toString())) {
+                if (((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).has("error")) {
+                    String err = (String) ((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).get("error");
+                    String reason = "There were errors: '" + err + "'";
 
-            if (opResult.get("result").toString().length() == 0) {
-                JSONObject injectedOperation = injectOperation(signedOpGroup);
-                if (isJSONArray(injectedOperation.toString())) {
-                    if (((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).has("error")) {
-                        String err = (String) ((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).get("error");
-                        String reason = "There were errors: '" + err + "'";
+                    result.put("result", reason);
+                } else {
+                    result.put("result", "");
+                }
+                if (((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).has("Error")) {
+                    String err = (String) ((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).get("Error");
+                    String reason = "There were errors: '" + err + "'";
 
-                        result.put("result", reason);
-                    } else {
-                        result.put("result", "");
-                    }
-                    if (((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).has("Error")) {
-                        String err = (String) ((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).get("Error");
-                        String reason = "There were errors: '" + err + "'";
+                    result.put("result", reason);
+                } else {
+                    result.put("result", "");
+                }
 
-                        result.put("result", reason);
-                    } else {
-                        result.put("result", "");
-                    }
+            } else if (isJSONObject(injectedOperation.toString())) {
+                if (injectedOperation.has("result")) {
+                    if (isJSONArray(injectedOperation.get("result").toString())) {
+                        if (((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).has("error")) {
+                            String err = (String) ((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0))
+                                    .get("error");
+                            String reason = "There were errors: '" + err + "'";
 
-                } else if (isJSONObject(injectedOperation.toString())) {
-                    if (injectedOperation.has("result")) {
-                        if (isJSONArray(injectedOperation.get("result").toString())) {
-                            if (((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).has("error")) {
-                                String err = (String) ((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0))
-                                        .get("error");
+                            result.put("result", reason);
+                        } else if (((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).has("kind")) {
+                            if (((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).has("msg")) {
+                                String err = (String) ((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).get("msg");
                                 String reason = "There were errors: '" + err + "'";
 
                                 result.put("result", reason);
-                            } else if (((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).has("kind")) {
-                                if (((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).has("msg")) {
-                                    String err = (String) ((JSONObject) ((JSONArray) injectedOperation.get("result")).get(0)).get("msg");
-                                    String reason = "There were errors: '" + err + "'";
-
-                                    result.put("result", reason);
-                                } else {
-                                    result.put("result", "");
-                                }
-
-
                             } else {
                                 result.put("result", "");
                             }
 
-                        } else {
-                            result.put("result", injectedOperation.get("result"));
-                        }
-                    } else {
-                        result.put("result", "There were errors.");
-                    }
-                }
 
-            } else {
-                result.put("result", opResult.get("result").toString());
+                        } else {
+                            result.put("result", "");
+                        }
+
+                    } else {
+                        result.put("result", injectedOperation.get("result"));
+                    }
+                } else {
+                    result.put("result", "There were errors.");
+                }
             }
+
+        } else {
+            result.put("result", opResult.get("result").toString());
         }
+
         return result;
     }
 
-    private JSONObject injectOperation(SignedOperationGroup signedOpGroup) throws Exception {
+    private JSONObject injectOperation(SignedOperationGroup signedOpGroup) {
         String payload = signedOpGroup.getSbytes();
         return nodeInjectOperation("\"" + payload + "\"");
     }
 
-    private JSONObject nodeInjectOperation(String payload) throws Exception {
+    private JSONObject nodeInjectOperation(String payload) {
         return (JSONObject) query("/injection/operation?chain=main", payload);
     }
 
     private JSONObject applyOperation(JSONObject head, JSONArray operations, String operationGroupHash,
-                                      String forgedOperationGroup, SignedOperationGroup signedOpGroup)
-            throws Exception {
+                                      String forgedOperationGroup, SignedOperationGroup signedOpGroup) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("protocol", head.get("protocol"));
         jsonObject.put("branch", head.get("hash"));
@@ -378,30 +443,26 @@ public class Gateway {
         return nodeApplyOperation(payload);
     }
 
-    private JSONObject nodeApplyOperation(JSONArray payload) throws Exception {
+    private JSONObject nodeApplyOperation(JSONArray payload) {
         return (JSONObject) query("/chains/main/blocks/head/helpers/preapply/operations", payload.toString());
     }
 
-    private JSONObject checkAppliedOperationResults(JSONObject appliedOp) throws Exception {
+    private JSONObject checkAppliedOperationResults(JSONObject appliedOp) {
         JSONObject returned = new JSONObject();
 
-        String[] validAppliedKinds = new String[]{"activate_account", "reveal", "transaction", "origination", "delegation"};
-
-        String firstApplied = appliedOp.toString().replaceAll("\\\\n", "").replaceAll("\\\\", "");
+        String firstApplied = appliedOp.toString().replace("\\\\n", "").replace("\\\\", "");
         JSONArray result = new JSONArray(new JSONObject(firstApplied).get("result").toString());
         JSONObject firstObject = (JSONObject) result.get(0);
 
-        try {
+        if (isJSONObject(firstObject.toString())) {
             JSONObject first = new JSONObject(firstObject.toString());
             if (first.has("kind") && first.has("id")) {
                 returned.put(RESULT, "There were errors: kind '" + first.getString("kind") + "' id '" + first.getString("id") + "'");
                 return returned;
             }
-        } catch (JSONException e) {
         }
 
-        try {
-            JSONArray first = new JSONArray(firstObject.toString());
+        if (isJSONArray(firstObject.toString())) {
             int elements = ((JSONArray) firstObject.get("contents")).length();
             for (int i = 0; i < elements; i++) {
                 JSONObject operationResult = ((JSONObject) ((JSONObject) (((JSONObject) (((JSONArray) firstObject.get("contents")).get(i))).get("metadata"))).get("operation_result"));
@@ -410,35 +471,32 @@ public class Gateway {
                     returned.put(RESULT, "There were errors: kind '" + err.getString("kind") + "' id '" + err.getString("id") + "'");
                 }
             }
-        } catch (JSONException e) {
         }
 
         returned.put(RESULT, "");
         return returned;
     }
 
-    private SignedOperationGroup signOperationGroup(String forgedOperation) throws Exception {
-        JSONObject signed = null;
+    private SignedOperationGroup signOperationGroup(String forgedOperation) throws NoWalletSetException {
+        JSONObject signed;
 
         if ((!Global.ledgerDerivationPath.isEmpty()) && (!Global.ledgerTezosFolderPath.isEmpty())) {
-            System.out.println(Global.CONFIRM_WITH_LEDGER_MESSAGE);
             signed = this.tezosJ.accounts.signWithLedger(Encoder.HEX.decode(forgedOperation), "03");
         } else {
             // Traditional signing.
             signed = this.tezosJ.accounts.sign(Encoder.HEX.decode(forgedOperation), "03");
         }
 
-        if (signed == null) // User cancelled the operation.
-        {
-            return null;
-        } else {
-            // Prepares the object to be returned.
-            byte[] workBytes = ArrayUtils.addAll(Encoder.HEX.decode(forgedOperation), Encoder.HEX.decode((String) signed.get("sig")));
-            return new SignedOperationGroup(workBytes, (String) signed.get("edsig"), (String) signed.get("sbytes"));
+        if (signed == null) {
+            throw new TezosJRuntimeException("User canceled operation");
         }
+        // Prepares the object to be returned.
+        byte[] workBytes = ArrayUtils.addAll(Encoder.HEX.decode(forgedOperation), Encoder.HEX.decode((String) signed.get("sig")));
+        return new SignedOperationGroup(workBytes, (String) signed.get("edsig"), (String) signed.get("sbytes"));
+
     }
 
-    private Object query(String endpoint, String data) throws Exception {
+    private Object query(String endpoint, String data) {
         JSONObject result = null;
         boolean methodPost = false;
         Request request = null;
@@ -471,7 +529,6 @@ public class Gateway {
             myBuilder.proxy(proxy); // If behind a firewall/proxy.
         }
 
-        // Constructs the builder;
         myBuilder.connectTimeout(HTTP_TIMEOUT, TimeUnit.SECONDS).writeTimeout(HTTP_TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(HTTP_TIMEOUT, TimeUnit.SECONDS).build();
 
@@ -479,67 +536,47 @@ public class Gateway {
             Response response = client.newCall(request).execute();
             String strResponse = response.body().string();
 
-            try {
+            if (isJSONObject(strResponse)) {
                 result = new JSONObject(strResponse);
-            } catch (JSONException JSONObjectException) {
-                try {
-                    JSONArray myJSONArray = new JSONArray(strResponse);
-                    result = new JSONObject();
-                    result.put(RESULT, myJSONArray);
-                } catch (JSONException JSONArrayException) {
-                    result = new JSONObject();
-                    result.put(RESULT, strResponse);
-                }
+            } else if (isJSONArray(strResponse)) {
+                JSONArray myJSONArray = new JSONArray(strResponse);
+                result = new JSONObject();
+                result.put(RESULT, myJSONArray);
+            } else {
+                result = new JSONObject();
+                result.put(RESULT, strResponse);
             }
-        } catch (Exception e) {
-            // If there is a real error...
-            e.printStackTrace();
-            result = new JSONObject();
-            result.put(RESULT, e.toString());
+        } catch (IOException e) {
+            throw new TezosJRuntimeException(e.getMessage());
         }
 
         return result;
     }
 
     // Call Tezos RUN_OPERATION.
-    private JSONObject callRunOperation(JSONArray operations) throws Exception {
-        JSONObject result = new JSONObject();
+    private JSONObject callRunOperation(JSONArray operations) {
         JSONObject head = (JSONObject) query("/chains/main/blocks/head/header", null);
         String forgedOperationGroup = forgeOperations(head, operations);
 
         // Check for errors.
         if (forgedOperationGroup.toLowerCase().contains("failed") || forgedOperationGroup.toLowerCase().contains("unexpected")
                 || forgedOperationGroup.toLowerCase().contains("missing") || forgedOperationGroup.toLowerCase().contains("error")) {
-            throw new Exception("Error while forging operation : " + forgedOperationGroup);
+            throw new TezosJRuntimeException("Error while forging operation : " + forgedOperationGroup);
         }
 
         SignedOperationGroup signedOpGroup = signOperationGroupSimulation(forgedOperationGroup);
-
-        if (signedOpGroup == null) // User cancelled the operation.
-        {
-            result.put("result", "There were errors: 'User has cancelled the operation'");
-            return result;
-        } else {
-
-            String operationGroupHash = computeOperationHash(signedOpGroup);
-
-            // Call RUN_OPERATIONS.
-            JSONObject runOp = runOperation(head, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
-
-            result = runOp;
-        }
-        return result;
+        String operationGroupHash = computeOperationHash(signedOpGroup);
+        return runOperation(head, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
     }
 
-    private String computeOperationHash(SignedOperationGroup signedOpGroup) throws Exception {
+    private String computeOperationHash(SignedOperationGroup signedOpGroup) {
         byte[] hash = new byte[32];
-        new CustomSodium("").crypto_generichash(hash, hash.length, signedOpGroup.getTheBytes(), signedOpGroup.getTheBytes().length, signedOpGroup.getTheBytes(), 0);
+        new LazySodiumJava(new SodiumJava()).cryptoGenericHash(hash, hash.length, signedOpGroup.getTheBytes(), signedOpGroup.getTheBytes().length, signedOpGroup.getTheBytes(), 0);
         return Base58Check.encode(hash);
     }
 
     private JSONObject runOperation(JSONObject head, JSONArray operations, String operationGroupHash,
-                                    String forgedOperationGroup, SignedOperationGroup signedOpGroup)
-            throws Exception {
+                                    String forgedOperationGroup, SignedOperationGroup signedOpGroup) {
         JSONObject jsonObject = new JSONObject();
         String chainId = head.get("chain_id").toString();
         jsonObject.put("branch", head.get("hash"));
@@ -552,7 +589,7 @@ public class Gateway {
         return nodeRunOperation(payload, chainId);
     }
 
-    private JSONObject nodeRunOperation(JSONArray payload, String chainId) throws Exception {
+    private JSONObject nodeRunOperation(JSONArray payload, String chainId) {
         JSONObject operation = new JSONObject();
         operation.put("operation", payload.get(0));
         operation.put("chain_id", chainId);
@@ -560,7 +597,7 @@ public class Gateway {
         return (JSONObject) query("/chains/main/blocks/head/helpers/scripts/run_operation", operation.toString());
     }
 
-    private SignedOperationGroup signOperationGroupSimulation(String forgedOperation) throws Exception {
+    private SignedOperationGroup signOperationGroupSimulation(String forgedOperation) {
         JSONObject signed = new JSONObject();
 
         byte[] bytes = Encoder.HEX.decode(forgedOperation);
@@ -582,7 +619,7 @@ public class Gateway {
     }
 
 
-    private String forgeOperations(JSONObject blockHead, JSONArray operations) throws Exception {
+    private String forgeOperations(JSONObject blockHead, JSONArray operations) {
         JSONObject result = new JSONObject();
         result.put("branch", blockHead.get("hash"));
         result.put("contents", operations);
@@ -590,18 +627,17 @@ public class Gateway {
         return nodeForgeOperations(result.toString());
     }
 
-    private String nodeForgeOperations(String opGroup) throws Exception {
+    private String nodeForgeOperations(String opGroup) {
         JSONObject response = (JSONObject) query("/chains/main/blocks/head/helpers/forge/operations", opGroup);
         String forgedOperation = (String) response.get(RESULT);
         return ((forgedOperation.replace("\n", "")).replace("\"", "").replace("'", ""));
     }
 
-    private JSONObject getAccountForBlock(String blockHash, String accountID) throws Exception {
+    private JSONObject getAccountForBlock(String blockHash, String accountID) {
         return (JSONObject) query("/chains/main/blocks/" + blockHash + "/context/contracts/" + accountID, null);
     }
 
-    private JSONObject appendRevealOperation(JSONObject blockHead, String pkh, Integer counter)
-            throws Exception {
+    private JSONObject appendRevealOperation(JSONObject blockHead, String pkh, Integer counter) throws NoWalletSetException {
         // Create new JSON object for the reveal operation.
         JSONObject revealOp = new JSONObject();
         EncryptedKeys encKeys = this.tezosJ.accounts.getEncKeys();
@@ -615,7 +651,7 @@ public class Gateway {
             BigDecimal roundedFee = fee.setScale(6, RoundingMode.HALF_UP);
             revealOp.put("kind", "reveal");
             revealOp.put("source", pkh);
-            revealOp.put("fee", (String.valueOf(roundedFee.multiply(BigDecimal.valueOf(Global.UTEZ)).toBigInteger())));
+            revealOp.put("fee", (String.valueOf(roundedFee.multiply(BigDecimal.valueOf(UTEZ)).toBigInteger())));
             revealOp.put("counter", String.valueOf(counter + 1));
             revealOp.put("gas_limit", "15400");
             revealOp.put("storage_limit", "300");
@@ -627,7 +663,7 @@ public class Gateway {
         return revealOp;
     }
 
-    private boolean isManagerKeyRevealedForAccount(JSONObject blockHead, String pkh) throws Exception {
+    private boolean isManagerKeyRevealedForAccount(JSONObject blockHead, String pkh) {
         String blockHeadHash = blockHead.getString("hash");
         JSONObject accountManager = getAccountManagerForBlock(blockHeadHash, pkh);
         if (accountManager.has(RESULT)) {
@@ -671,10 +707,10 @@ public class Gateway {
 
     private JSONObject paramValueBuilder(String entrypoint, String[] contractEntrypoints, String[] parameters,
                                          String[] contractEntryPointParameters, String[] datatypes,
-                                         String smartContractType) throws Exception {
+                                         String smartContractType) {
 
         if (smartContractType.equals(Global.GENERIC_STANDARD) && parameters.length != datatypes.length) {
-            throw new Exception("Wrong number of parameters to contract entrypoint");
+            throw new TezosJRuntimeException("Wrong number of parameters to contract entrypoint");
         }
 
         // Creates the JSON object that will be returned by the methd.
@@ -742,11 +778,11 @@ public class Gateway {
 
     private Pair buildParameterPairs(JSONObject jsonObj, Pair pair, List<String> parameters,
                                      String[] contractEntryPointParameters,
-                                     Boolean doSolveLeft, String smartContractType, String entrypoint) throws Exception {
+                                     Boolean doSolveLeft, String smartContractType, String entrypoint) {
 
         // Test parameters validity.
         if (parameters.isEmpty()) {
-            throw new Exception("Missing parameters to pass to contract entrypoint");
+            throw new TezosJRuntimeException("Missing parameters to pass to contract entrypoint");
         }
 
         List<String> left;
@@ -806,25 +842,26 @@ public class Gateway {
 
     }
 
-    private Object solvePair(Object pair, List datatypes, String smartContractType) throws Exception {
-
-        Object result = null;
+    private Object solvePair(Object pair, List datatypes, String smartContractType) {
 
         // Extract and check contents.
         if (!hasPairs((Pair) pair)) {
             // Here we've got List in both sides. But they might have more than one element.
             Object jsonLeft = ((Pair) pair).getLeft() == null ? null : toJsonFormat((List) ((Pair) pair).getLeft(), datatypes, 0);
-            Object jsonRight = ((Pair) pair).getRight() == null ? null : toJsonFormat((List) ((Pair) pair).getRight(), datatypes, ((Pair) pair).getLeft() == null ? 0 : ((List) ((Pair) pair).getLeft()).size());
+            Integer firstElement = ((Pair) pair).getLeft() == null ? 0 : ((List) ((Pair) pair).getLeft()).size();
+            Object jsonRight = ((Pair) pair).getRight() == null ? null : toJsonFormat((List) ((Pair) pair).getRight(), datatypes, firstElement);
 
             // Test if there is only one parameter.
             if (jsonLeft == null) {
                 if (jsonRight == null) {
-                    throw new Exception("Pair cannot be (null, null)");
+                    throw new TezosJRuntimeException("Pair cannot be (null, null)");
                 } else {
                     // FA1.2 handling
                     if (smartContractType.equals(Global.FA12_STANDARD)) {
                         if (((JSONObject) jsonRight).has("unit")) {
-                            JSONObject tmpObj = new JSONObject(), tmpItem1 = new JSONObject(), tmpItem2 = new JSONObject();
+                            JSONObject tmpObj = new JSONObject();
+                            JSONObject tmpItem1 = new JSONObject();
+                            JSONObject tmpItem2 = new JSONObject();
                             tmpObj.put("prim", "Pair");
                             Iterator<?> keys = ((JSONObject) jsonRight).keys();
                             String key = (String) keys.next();

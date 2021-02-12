@@ -27,8 +27,8 @@ public class DefaultTagResource implements TagResource {
     }
 
     @Override
-    public StatusResponse read(String uuid, String counter, String MAC) {
-        return this.implementationService.read(uuid, counter, MAC);
+    public StatusResponse read(String uuid, String counter, String mac) {
+        return this.implementationService.read(uuid, counter, mac);
     }
 
     @Override

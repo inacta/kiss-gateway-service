@@ -1,10 +1,15 @@
 package org.tezosj.util;
 
+import org.tezosj.exceptions.TezosJRuntimeException;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 
 public class Sha256 {
+
+    private Sha256() {}
+
     public static final int LENGTH = 32; // bytes
 
     /**
@@ -19,7 +24,7 @@ public class Sha256 {
         try {
             return MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);  // Can't happen.
+            throw new TezosJRuntimeException("No hashing algorithm");
         }
     }
 
@@ -62,7 +67,7 @@ public class Sha256 {
     }
 
 
-    public static byte[] hashTwiceTezos(byte[] input, int len) {
+    public static byte[] hashTwiceTezos(byte[] input) {
         byte[] tezosAddress = new byte[20];
         byte[] sha256DoubleHash = hashTwice(input);
         System.arraycopy(sha256DoubleHash, 0, tezosAddress, 0, 19);

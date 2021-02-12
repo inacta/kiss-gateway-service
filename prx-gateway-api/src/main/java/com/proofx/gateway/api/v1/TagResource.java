@@ -19,20 +19,11 @@ import javax.ws.rs.core.MediaType;
 public interface TagResource {
 
     /**
-     * A method for getting an endpoint property-key that should be used for configuration on platform
-     *
-     * @return property-key
-     */
-    static String getEndpointPropertyKey() {
-        return "TAG_SERVICE_ENDPOINT";
-    }
-
-    /**
      * Verify a tags validity
      *
      * @param uuid uuid of the nfc tag
      * @param counter nfc tag counter
-     * @param MAC nfc tag verification code
+     * @param mac nfc tag verification code
      * @return if nfc tag is valid
      */
     @GET
@@ -41,7 +32,7 @@ public interface TagResource {
     StatusResponse read(
             @QueryParam("u") String uuid,
             @QueryParam("n") String counter,
-            @QueryParam("e") String MAC);
+            @QueryParam("e") String mac);
 
     /**
      * Add a new tag

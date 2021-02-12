@@ -5,8 +5,12 @@ import okhttp3.OkHttpClient.Builder;
 
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.SecureRandom;
 
 public class Global {
+
+    private Global() {}
+
     public static final String TEZOS_SYMBOL = "\uA729";
     public static final Integer UTEZ = 1000000;
     public static final String TZJ_KEY_ALIAS = "tzj";
@@ -14,7 +18,6 @@ public class Global {
     public static final String OPERATION_KIND_DELEGATION = "delegation";
     public static final String OPERATION_KIND_ORIGINATION = "origination";
     public static KeyStore myKeyStore = null;
-    //    public static Boolean ignoreInvalidCertificates = false;
     public static String proxyHost = "";
     public static String proxyPort = "";
     public static String defaultProvider = "https://mainnet.tezrpc.me";
@@ -41,6 +44,7 @@ public class Global {
     public static String FA12_GET_BALANCE = "getBalance";
     public static String FA12_GET_TOTAL_SUPPLY = "getTotalSupply";
     public static String CONFIRM_WITH_LEDGER_MESSAGE = "Waiting for transaction confirmation on Ledger hardware device...";
+    public static int RAND_SEED = new SecureRandom().nextInt(1000000) + 1;
 
     public static void initKeyStore() throws KeyStoreException {
         if (myKeyStore == null) {

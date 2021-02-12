@@ -2,12 +2,9 @@ package com.proofx.gateway.core;
 
 import com.proofx.gateway.api.v1.model.blockchain.TokenAmountResponse;
 import com.proofx.gateway.api.v1.model.nodeserver.Status;
-import com.proofx.gateway.core.remote.RemoteServiceBuilder;
 import io.vertx.ext.web.RoutingContext;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tezosj.TezosJ;
 import org.tezosj.contracts.FA1_2Contract;
 import org.tezosj.exceptions.InvalidAddressException;
@@ -34,8 +31,6 @@ public class DefaultBlockchainService {
     @ConfigProperty(name = "passPhrase")
     String passPhrase;
 
-    private final RemoteServiceBuilder remoteServiceBuilder;
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultBlockchainService.class);
     private final TezosJ tezosJ;
 
     @Context
@@ -43,8 +38,7 @@ public class DefaultBlockchainService {
     RoutingContext routingContext;
 
     @Inject
-    DefaultBlockchainService(final RemoteServiceBuilder remoteServiceBuilder) {
-        this.remoteServiceBuilder = remoteServiceBuilder;
+    DefaultBlockchainService() {
         this.tezosJ = new TezosJ("https://testnet-tezos.giganode.io/");
         this.tezosJ.accounts.importWallet("dog nuclear mistake document manage fox grow claim champion online unusual ivory guide know season", "myPassphrase");
     }

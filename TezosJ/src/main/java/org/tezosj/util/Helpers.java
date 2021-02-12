@@ -7,7 +7,11 @@ import org.json.JSONObject;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
+@SuppressWarnings({"java:S5542", "java:S3776"})
 public class Helpers {
+
+    private Helpers() {}
+
     public static byte[] zeros(int n) {
         return new byte[n];
     }
@@ -16,10 +20,8 @@ public class Helpers {
     // Uses AES encryption
     public static byte[] encryptBytes(byte[] original, byte[] key) {
         try {
-            SecretKeySpec keySpec = null;
-            Cipher cipher = null;
-            keySpec = new SecretKeySpec(key, "AES");
-            cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, keySpec);
             return cipher.doFinal(original);
         } catch (Exception e) {
@@ -31,10 +33,8 @@ public class Helpers {
     // Decryption routine
     public static byte[] decryptBytes(byte[] encrypted, byte[] key) {
         try {
-            SecretKeySpec keySpec = null;
-            Cipher cipher = null;
-            keySpec = new SecretKeySpec(key, "AES");
-            cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.DECRYPT_MODE, keySpec);
 
             return cipher.doFinal(encrypted);
@@ -86,7 +86,7 @@ public class Helpers {
                     JSONObject opResult = (JSONObject) opRes.get("operation_result");
 
                     if (opResult.has("errors")) {
-                        JSONObject errors = new JSONObject();
+                        JSONObject errors;
                         errors = (JSONObject) ((JSONArray) opResult.get("errors")).get(1);
 
                         String kind = errors.getString("kind");

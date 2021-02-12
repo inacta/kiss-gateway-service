@@ -4,13 +4,18 @@ import com.google.common.primitives.Bytes;
 
 public class TagUtils {
 
+    private TagUtils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     static final String HEXES = "0123456789ABCDEF";
-    public static String bytesToString( byte [] raw ) {
-        if ( raw == null ) {
+
+    public static String bytesToString(byte[] raw) {
+        if (raw == null) {
             return null;
         }
-        final StringBuilder hex = new StringBuilder( 2 * raw.length );
-        for ( final byte b : raw ) {
+        final StringBuilder hex = new StringBuilder(2 * raw.length);
+        for (final byte b : raw) {
             hex.append(HEXES.charAt((b & 0xF0) >> 4))
                     .append(HEXES.charAt((b & 0x0F)));
         }
@@ -23,7 +28,7 @@ public class TagUtils {
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
             data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i+1), 16));
+                    + Character.digit(s.charAt(i + 1), 16));
         }
         return data;
     }
@@ -79,8 +84,8 @@ public class TagUtils {
         return result;
     }
 
-    public static byte[] MSBtoLSB(byte[] arr) {
-        for(int i = 0; i < arr.length / 2; i++) {
+    public static byte[] msbToLsb(byte[] arr) {
+        for (int i = 0; i < arr.length / 2; i++) {
             byte temp = arr[i];
             arr[i] = arr[arr.length - i - 1];
             arr[arr.length - i - 1] = temp;

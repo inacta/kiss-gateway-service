@@ -17,10 +17,11 @@
 package org.tezosj.util;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public interface Encoder {
 
-    public static final Charset CHARSET = Charset.forName("UTF-8");
+    public static final Charset CHARSET = StandardCharsets.UTF_8;
 
     public static final Hex HEX = new Hex();
     public static final Raw RAW = new Raw();
