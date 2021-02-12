@@ -2,6 +2,12 @@ package com.proofx.gateway.api.v1.model.nodeserver;
 
 import java.util.List;
 
+/**
+ * class
+ *
+ * @author ProofX
+ * @since 1.0.0
+ */
 public class GetSuspendedActivitiesResponse {
     private List<Integer> suspendedActivities;
 

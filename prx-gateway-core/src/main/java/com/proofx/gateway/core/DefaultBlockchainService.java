@@ -43,6 +43,14 @@ public class DefaultBlockchainService {
         this.tezosJ.accounts.importWallet("dog nuclear mistake document manage fox grow claim champion online unusual ivory guide know season", "myPassphrase");
     }
 
+
+    /**
+     * retrieves token amount
+     *
+     * @param contractAddress address of token smart contract
+     * @param address token holder address
+     * @return token amount or error
+     */
     public TokenAmountResponse getTokenAmount(String contractAddress, String address) {
         if (!routingContext.request().getHeader("Authorization").equals("810887b3-29dc-4cad-85ab-e7b1ae765ff8")) {
             return new TokenAmountResponse(Status.ERROR, "Unauthorized");

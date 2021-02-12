@@ -8,14 +8,15 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Locale;
 
+@SuppressWarnings({"java:S1176"})
 public class Base58Check {
 
     private Base58Check() {}
 
     private static final String ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-    private static char[] ALPHABET_ARRAY = ALPHABET.toCharArray();
-    private static BigInteger BASE_SIZE = BigInteger.valueOf(ALPHABET_ARRAY.length);
-    private static int CHECKSUM_SIZE = 4;
+    private static final char[] ALPHABET_ARRAY = ALPHABET.toCharArray();
+    private static final BigInteger BASE_SIZE = BigInteger.valueOf(ALPHABET_ARRAY.length);
+    private static final int CHECKSUM_SIZE = 4;
 
     public static String encode(byte[] data) {
         return encodePlain(addChecksum(data));
@@ -32,7 +33,7 @@ public class Base58Check {
 
         String result = "";
 
-        while (intData.compareTo(BigInteger.ZERO) == 1) {
+        while (intData.compareTo(BigInteger.ZERO) > 0) {
             BigInteger[] quotientAndRemainder = intData.divideAndRemainder(BASE_SIZE);
 
             BigInteger quotient = quotientAndRemainder[0];

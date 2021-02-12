@@ -3,6 +3,7 @@ package com.proofx.gateway.tezosj;
 import com.proofx.gateway.tezosj.core.*;
 import com.proofx.gateway.tezosj.util.Global;
 
+@SuppressWarnings("java:S1176")
 public class TezosJ {
 
     public final Accounts accounts;

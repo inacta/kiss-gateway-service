@@ -10,6 +10,7 @@ import com.proofx.gateway.tezosj.util.Helpers;
 
 import java.util.Arrays;
 
+@SuppressWarnings({"java:S1176"})
 public class Crypto {
 
     private final TezosJ tezosJ;

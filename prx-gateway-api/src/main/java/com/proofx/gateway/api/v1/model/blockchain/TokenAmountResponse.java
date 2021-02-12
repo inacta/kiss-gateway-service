@@ -2,10 +2,24 @@ package com.proofx.gateway.api.v1.model.blockchain;
 
 import com.proofx.gateway.api.v1.model.nodeserver.Status;
 
+
+/**
+ * Token amount response
+ *
+ * @author ProofX
+ * @since 1.0.0
+ */
 public class TokenAmountResponse {
     private Status status;
     private String message;
 
+
+    /**
+     * Init token amount response
+     *
+     * @param status success or failure
+     * @param message message
+     */
     public TokenAmountResponse(Status status, String message) {
         this.status = status;
         this.message = message;

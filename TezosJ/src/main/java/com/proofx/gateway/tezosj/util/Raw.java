@@ -16,6 +16,7 @@
 
 package com.proofx.gateway.tezosj.util;
 
+@SuppressWarnings({"java:S1176"})
 public class Raw implements Encoder {
 
     public byte[] decode(final String data) {

@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings({"java:S1192", "java:S3776", "java:S107", "java:S1172", "java:S3740"})
+@SuppressWarnings({"java:S1192", "java:S3776", "java:S107", "java:S1172", "java:S3740", "java:S1176"})
 public class Gateway {
 
     private final TezosJ tezosJ;

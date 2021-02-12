@@ -10,6 +10,12 @@ import io.vertx.ext.web.RoutingContext;
 import javax.inject.Inject;
 import javax.ws.rs.core.Context;
 
+/**
+ * Tag verification
+ *
+ * @author ProofX
+ * @since 1.0.0
+ */
 public class DefaultTagResource implements TagResource {
 
     private PropertyService propertyService;

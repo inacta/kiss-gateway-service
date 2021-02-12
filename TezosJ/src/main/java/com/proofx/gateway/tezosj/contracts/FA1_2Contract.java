@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.math.BigDecimal;
 
+@SuppressWarnings({"java:S1176"})
 public class FA1_2Contract extends Contract {
     public FA1_2Contract(TezosJ tezosj, String contractAddress) throws InvalidAddressException {
         super(tezosj, contractAddress);

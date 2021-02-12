@@ -1,5 +1,6 @@
 package com.proofx.gateway.tezosj.model;
 
+@SuppressWarnings({"java:S1176"})
 public class SignedOperationGroup {
 
     private byte[] bytes;

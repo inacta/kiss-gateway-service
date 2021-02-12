@@ -15,6 +15,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -25,16 +26,33 @@ import static com.proofx.gateway.tezosj.util.Global.RAND_SEED;
 import static com.proofx.gateway.tezosj.util.Global.TZJ_KEY_ALIAS;
 import static com.proofx.gateway.tezosj.util.Helpers.*;
 
+/**
+ * Manage wallet info and private keys
+ *
+ * @author Inacta AG
+ * @since 1.0.0
+ */
 @SuppressWarnings({"java:S5542"})
 public class Accounts {
 
     private final TezosJ tezosJ;
     private EncryptedKeys encKeys = null;
 
+    /**
+     * Init class
+     *
+     * @param tezosJ TezosJ reference
+     */
     public Accounts(TezosJ tezosJ) {
         this.tezosJ = tezosJ;
     }
 
+    /**
+     * Get encrypted keys
+     *
+     * @return encrypted keys
+     * @throws NoWalletSetException if no wallet created or imported
+     */
     public EncryptedKeys getEncKeys() throws NoWalletSetException {
         if (encKeys == null) {
             throw new NoWalletSetException();
@@ -42,6 +60,12 @@ public class Accounts {
         return encKeys;
     }
 
+    /**
+     * Import a new wallet using a mnemonic phrase and a passphrase
+     *
+     * @param mnemonicWords mnemonic phrase
+     * @param passPhrase passphrase
+     */
     public void importWallet(String mnemonicWords, String passPhrase) {
         EncryptedKeys encryptedKeys = new EncryptedKeys();
         initStore(encryptedKeys, passPhrase.getBytes());
@@ -53,6 +77,14 @@ public class Accounts {
         this.encKeys = encryptedKeys;
     }
 
+    /**
+     * Sign data
+     *
+     * @param bytes data to sign
+     * @param watermark watermark
+     * @return signed data
+     * @throws NoWalletSetException if no wallet created or imported
+     */
     public JSONObject sign(byte[] bytes, String watermark) throws NoWalletSetException {
         JSONObject response = new JSONObject();
 
@@ -80,7 +112,7 @@ public class Accounts {
         byte[] edsigPrefix =
                 {9, (byte) 245, (byte) 205, (byte) 134, 18};
         byte[] edsigPrefixedSig = ArrayUtils.addAll(edsigPrefix, sig);
-        ;
+
         String edsig = Base58Check.encode(edsigPrefixedSig);
         String sbytes = Encoder.HEX.encode(bytes) + Encoder.HEX.encode(sig);
 
@@ -94,9 +126,16 @@ public class Accounts {
 
     }
 
+    /**
+     * Sign data with a ledger
+     *
+     * @param bytes data to sign
+     * @param watermark watermark
+     * @return signed data
+     */
     public JSONObject signWithLedger(byte[] bytes, String watermark) {
         JSONObject response = new JSONObject();
-        String watermarkedForgedOperationBytesHex = "";
+        String watermarkedForgedOperationBytesHex;
 
         byte[] workBytes = ArrayUtils.addAll(bytes);
 
@@ -118,7 +157,9 @@ public class Accounts {
             BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 
             // read the output from the command
-            String s = "", signature = "", error = "";
+            String s;
+            String signature = "";
+            String error = "";
             while ((s = stdInput.readLine()) != null) {
                 signature = signature + s;
             }
@@ -126,7 +167,7 @@ public class Accounts {
             JSONObject jsonObject = new JSONObject(signature);
             String ledgerSig = jsonObject.getString("signature");
 
-            String r = "";
+            String r;
             while ((r = stdError.readLine()) != null) {
                 error = error + r;
             }
@@ -155,7 +196,11 @@ public class Accounts {
         return response;
     }
 
-    // Retrieves the Public Key Hash (Tezos user address) upon user request.
+    /**
+     * Get PKH of private key
+     *
+     * @return PKH
+     */
     public String getPublicKeyHash() throws NoWalletSetException {
         if (this.encKeys == null) {
             throw new NoWalletSetException();
@@ -164,9 +209,39 @@ public class Accounts {
         return new String(decrypted);
     }
 
+    /**
+     * Get encryption key
+     *
+     * TODO: remove parameter and get via accounts
+     *
+     * @param encryptedKeys encrypted keys
+     * @return encryption key
+     */
+    public byte[] encryptionKey(EncryptedKeys encryptedKeys) {
+        try {
+            String base64EncryptedPassword = encryptedKeys.getEncPass();
+            String base64EncryptionIv = encryptedKeys.getEncIv();
+
+            byte[] encryptionIv = Base64.getDecoder().decode(base64EncryptionIv);
+            byte[] encryptionPassword = Base64.getDecoder().decode(base64EncryptedPassword);
+
+            KeyStore.ProtectionParameter entryPassword = new KeyStore.PasswordProtection(
+                    base64EncryptedPassword.toCharArray());
+            KeyStore.SecretKeyEntry entry = (KeyStore.SecretKeyEntry) Global.myKeyStore.getEntry(TZJ_KEY_ALIAS + RAND_SEED,
+                    entryPassword);
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, entry.getSecretKey(), new IvParameterSpec(encryptionIv));
+            return cipher.doFinal(encryptionPassword);
+        } catch (Exception e) {
+            return new byte[0];
+        }
+
+    }
+
     private void initStore(EncryptedKeys encryptedKeys, byte[] toHash) {
         try {
-            String pString = new String(toHash, "UTF-8");
+            String pString = new String(toHash, StandardCharsets.UTF_8);
             int hashedP = pString.hashCode();
             StringBuilder strHash = new StringBuilder(String.valueOf(hashedP));
             while (strHash.length() < 16) {
@@ -180,7 +255,7 @@ public class Accounts {
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
             byte[] encryptionIv = cipher.getIV();
-            byte[] pBytes = pString.getBytes("UTF-8");
+            byte[] pBytes = pString.getBytes(StandardCharsets.UTF_8);
             byte[] encPBytes = cipher.doFinal(pBytes);
             String encP = Base64.getEncoder().encodeToString(encPBytes);
             String encryptedIv = Base64.getEncoder().encodeToString(encryptionIv);
@@ -209,30 +284,8 @@ public class Accounts {
     }
 
 
-    public byte[] encryptionKey(EncryptedKeys encryptedKeys) {
-        try {
-            String base64EncryptedPassword = encryptedKeys.getEncPass();
-            String base64EncryptionIv = encryptedKeys.getEncIv();
-
-            byte[] encryptionIv = Base64.getDecoder().decode(base64EncryptionIv);
-            byte[] encryptionPassword = Base64.getDecoder().decode(base64EncryptedPassword);
-
-            KeyStore.ProtectionParameter entryPassword = new KeyStore.PasswordProtection(
-                    base64EncryptedPassword.toCharArray());
-            KeyStore.SecretKeyEntry entry = (KeyStore.SecretKeyEntry) Global.myKeyStore.getEntry(TZJ_KEY_ALIAS + RAND_SEED,
-                    entryPassword);
-
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            cipher.init(Cipher.DECRYPT_MODE, entry.getSecretKey(), new IvParameterSpec(encryptionIv));
-            return cipher.doFinal(encryptionPassword);
-        } catch (Exception e) {
-            return new byte[0];
-        }
-
-    }
-
     // This method generates the Private Key, Public Key and Public Key hash (Tezos address).
-    private EncryptedKeys generateKeys(EncryptedKeys encryptedKeys, String passphrase) {
+    private void generateKeys(EncryptedKeys encryptedKeys, String passphrase) {
 
         // Decrypts the mnemonic words stored in class properties.
         byte[] input = decryptBytes(encryptedKeys.getMnemonicWords(), encryptionKey(encryptedKeys));
@@ -300,7 +353,6 @@ public class Accounts {
 
         // Encrypts and stores Public Key Hash into wallet's class property.
         encryptedKeys.setEncPublicKeyHash(encryptBytes(Base58.encode(prefixedPKhashWithChecksum).getBytes(), encryptionKey(encryptedKeys)));
-        return encryptedKeys;
     }
 
 }

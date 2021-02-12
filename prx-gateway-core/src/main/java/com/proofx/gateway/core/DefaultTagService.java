@@ -18,6 +18,13 @@ import javax.enterprise.context.RequestScoped;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 
+
+/**
+ * Tag verification
+ *
+ * @author ProofX
+ * @since 1.0.0
+ */
 @RequestScoped
 public class DefaultTagService {
     private static final int CMAC_SIZE = 16;
@@ -101,6 +108,15 @@ public class DefaultTagService {
         return false;
     }
 
+
+    /**
+     * Verify nfc tag
+     *
+     * @param uuid id of nfc tag
+     * @param counter  nfc tag counter
+     * @param mac verification code
+     * @return status of nfc tag
+     */
     public StatusResponse read(String uuid, String counter, String mac) {
         // counter is MSB in ASCII but LSB is required for calculation
         byte[] sdmReadCtr = TagUtils.msbToLsb(TagUtils.stringToBytes(counter));

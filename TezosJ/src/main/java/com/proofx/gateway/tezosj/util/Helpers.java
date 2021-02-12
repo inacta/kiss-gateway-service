@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
-@SuppressWarnings({"java:S5542", "java:S3776"})
+@SuppressWarnings({"java:S5542", "java:S3776", "java:S1176"})
 public class Helpers {
 
     private Helpers() {}

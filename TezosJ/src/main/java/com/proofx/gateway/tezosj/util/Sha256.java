@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 
+@SuppressWarnings({"java:S1176"})
 public class Sha256 {
 
     private Sha256() {}

@@ -4,6 +4,7 @@ import com.proofx.gateway.tezosj.TezosJ;
 import com.proofx.gateway.tezosj.contracts.Contract;
 import com.proofx.gateway.tezosj.exceptions.InvalidAddressException;
 
+@SuppressWarnings({"java:S1176"})
 public class ContractFactory {
     private final TezosJ tezosJ;
 

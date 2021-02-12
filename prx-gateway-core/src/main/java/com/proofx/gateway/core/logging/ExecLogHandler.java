@@ -14,6 +14,12 @@ public class ExecLogHandler extends LogOutputStream {
 
     private final Logger log;
 
+    /**
+     * ExecLogHandler
+     *
+     * @param log log
+     * @param logLevel logLevel
+     */
     public ExecLogHandler(Logger log, Level logLevel) {
         super(logLevel.toInt());
         this.log = log;
