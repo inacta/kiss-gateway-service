@@ -4,7 +4,7 @@ import org.json.JSONObject;
 
 import java.math.BigDecimal;
 
-@SuppressWarnings({"java:S125","java:S127", "java:S1220", "java:S106", "java:S1176"})
+@SuppressWarnings({"java:S125","java:S127", "java:S1220", "java:S106", "java:S1176", "java:S1220"})
 public class Main {
     public static void main(String[] args) throws Exception {
         String address = "tz1bejpHpyj574Hp3auFMdXFYn15YSedMxBk";

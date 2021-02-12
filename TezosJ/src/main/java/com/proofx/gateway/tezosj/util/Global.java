@@ -45,7 +45,7 @@ public class Global {
     public static final String FA12_GET_BALANCE = "getBalance";
     public static final String FA12_GET_TOTAL_SUPPLY = "getTotalSupply";
     public static final String CONFIRM_WITH_LEDGER_MESSAGE = "Waiting for transaction confirmation on Ledger hardware device...";
-    public static int RAND_SEED = new SecureRandom().nextInt(1000000) + 1;
+    public static final int RAND_SEED = new SecureRandom().nextInt(1000000) + 1;
 
     public static void initKeyStore() throws KeyStoreException {
         if (myKeyStore == null) {

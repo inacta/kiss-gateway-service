@@ -14,7 +14,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -30,7 +29,8 @@ import java.util.concurrent.TimeUnit;
 public class Gateway {
 
     private final TezosJ tezosJ;
-    private static final MediaType textPlainMT = MediaType.parse("text/plain; charset=utf-8");
+    private static final MediaType APPLICATION_JSON_MT = MediaType.parse("application/json");
+    private static final MediaType TEXT_PLAIN_MT = MediaType.parse("text/plain; charset=utf-8");
     private static final Integer HTTP_TIMEOUT = 20;
     private static final String RESULT = "result";
 
@@ -84,14 +84,14 @@ public class Gateway {
 
         JSONObject jsonObj;
 
-        ArrayList<String> parameters = new ArrayList<String>();
+        ArrayList<String> parameters = new ArrayList<>();
 
         if (namesOrTypes.equals("names")) {
             for (int i = 0; i < paramArray.length(); i++) {
                 jsonObj = (JSONObject) paramArray.get(i);
                 if (jsonObj.has("annots")) {
                     JSONArray annotsArray = (JSONArray) jsonObj.get("annots");
-                    parameters.add(((String) annotsArray.getString(0).replace("%", "")).replace(":", ""));
+                    parameters.add((annotsArray.getString(0).replace("%", "")).replace(":", ""));
                 }
             }
         } else if (namesOrTypes.equals("types")) {
@@ -176,7 +176,7 @@ public class Gateway {
         transaction.put("kind", Global.OPERATION_KIND_TRANSACTION);
 
 
-        JSONObject myParams = null;
+        JSONObject myParams;
         if (!rawParameter) {
             // Builds a Michelson-compatible set of parameters to pass to the smart
             // contract.
@@ -489,22 +489,20 @@ public class Gateway {
     }
 
     private Object query(String endpoint, String data) {
-        JSONObject result = null;
+        JSONObject result;
         boolean methodPost = false;
-        Request request = null;
-        Proxy proxy = null;
-        SSLContext sslcontext = null;
+        Request request;
+        Proxy proxy;
 
         OkHttpClient client = Global.myOkhttpClient;
         OkHttpClient.Builder myBuilder = Global.myOkhttpBuilder;
 
-        final MediaType MEDIA_PLAIN_TEXT_JSON = MediaType.parse("application/json");
-        String DEFAULT_PROVIDER = Global.defaultProvider;
-        RequestBody body = RequestBody.create(textPlainMT, DEFAULT_PROVIDER + endpoint);
+        final String DEFAULT_PROVIDER = Global.defaultProvider;
+        RequestBody body = RequestBody.create(TEXT_PLAIN_MT, DEFAULT_PROVIDER + endpoint);
 
         if (data != null) {
             methodPost = true;
-            body = RequestBody.create(MEDIA_PLAIN_TEXT_JSON, data.getBytes());
+            body = RequestBody.create(APPLICATION_JSON_MT, data.getBytes());
         }
 
         if (!methodPost) {
@@ -770,7 +768,7 @@ public class Gateway {
 
     private Pair buildParameterPairs(JSONObject jsonObj, Pair pair, List<String> parameters,
                                      String[] contractEntryPointParameters,
-                                     Boolean doSolveLeft, String smartContractType, String entrypoint) {
+                                     boolean doSolveLeft, String smartContractType, String entrypoint) {
 
         // Test parameters validity.
         if (parameters.isEmpty()) {
@@ -783,7 +781,7 @@ public class Gateway {
 
         if (parameters.size() == 1) {
             // If number of parameters is only 1.
-            newPair = new MutablePair<>(null, new ArrayList<String>(Arrays.asList(parameters.get(0))));
+            newPair = new MutablePair<>(null, new ArrayList<>(Arrays.asList(parameters.get(0))));
         } else {
 
             if (pair == null) {
