@@ -25,6 +25,11 @@ import static org.eclipse.microprofile.config.ConfigProvider.getConfig;
 public class PropertyService {
 
     private static final String APPLICATION_KEY = "PROOFX";
+    private static final String TEZOS_PROVIDER = "TEZOS_PROVIDER";
+    private static final String MNEMONIC = "MNEMONIC";
+    private static final String PASSPHRASE = "PASSPHRASE";
+    private static final String VOUCHER_PRODUCT_ID = "VOUCHER_PRODUCT_ID";
+    private static final String SHOPIFY_KEY = "SHOPIFY_KEY";
 
     private final String tenant;
 
@@ -71,4 +76,16 @@ public class PropertyService {
 
         throw new ServiceRuntimeException(PROPERTY_NOT_FOUND_ERROR, key, this.tenant);
     }
+
+    public String getTezosProvider() {
+        return this.getProperty(TEZOS_PROVIDER);
+    }
+    public String getMnemonic() {
+        return this.getProperty(MNEMONIC);
+    }
+    public String getPassphrase() {
+        return this.getProperty(PASSPHRASE);
+    }
+    public Long getVoucherProductId() { return Long.parseLong(this.getProperty(VOUCHER_PRODUCT_ID)); }
+    public String getShopifyKey() { return this.getProperty(SHOPIFY_KEY); }
 }

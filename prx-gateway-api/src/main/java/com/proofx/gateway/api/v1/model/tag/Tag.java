@@ -1,4 +1,4 @@
-package com.proofx.gateway.api.v1.model;
+package com.proofx.gateway.api.v1.model.tag;
 
 /**
  * Parameters when adding a new tag
@@ -6,7 +6,7 @@ package com.proofx.gateway.api.v1.model;
  * @author ProofX
  * @since 1.0.0
  */
-public class NewTagParams {
+public class Tag {
     String uuid;
     String secret;
 
@@ -23,9 +23,9 @@ public class NewTagParams {
      * Sets the value of the uuid property
      *
      * @param uuid allowed object is {@link String }
-     * @return the {@link NewTagParams}
+     * @return the {@link Tag}
      */
-    public NewTagParams setUuid(String uuid) {
+    public Tag setUuid(String uuid) {
         this.uuid = uuid;
         return this;
     }
@@ -43,9 +43,9 @@ public class NewTagParams {
      * Sets the value of the secret property
      *
      * @param secret allowed object is {@link String }
-     * @return the {@link NewTagParams}
+     * @return the {@link Tag}
      */
-    public NewTagParams setSecret(String secret) {
+    public Tag setSecret(String secret) {
         this.secret = secret;
         return this;
     }

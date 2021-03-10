@@ -1,7 +1,7 @@
 package com.proofx.gateway.api.v1;
 
-import com.proofx.gateway.api.v1.model.NewTagParams;
 import com.proofx.gateway.api.v1.model.StatusResponse;
+import com.proofx.gateway.api.v1.model.tag.Tag;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import javax.transaction.Transactional;
@@ -28,6 +28,7 @@ public interface TagResource {
      */
     @GET
     @Transactional
+    @Path("/t")
     @Produces(MediaType.APPLICATION_JSON)
     StatusResponse read(
             @QueryParam("u") String uuid,
@@ -42,8 +43,8 @@ public interface TagResource {
      */
     @POST
     @Transactional
+    @Path("/t")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    String write(NewTagParams params);
+    void write(Tag params);
 
 }

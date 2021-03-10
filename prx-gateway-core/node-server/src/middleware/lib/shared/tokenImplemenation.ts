@@ -39,7 +39,9 @@ export function getContractInterface(contract: ContractAbstraction<ContractProvi
     standard = TokenStandard.fa2;
   } else if (
     // These function names are specified in FA1.2/TZIP-7
-    ['transfer', 'approve', 'get_allowance', 'get_balance', 'get_total_supply'].every((mn) => methodNames.includes(mn))
+    // The names with underscore are there for legacy reasons
+    ['transfer', 'approve', 'getallowance', 'getbalance', 'gettotalsupply'].every((mn) => methodNames.includes(mn))
+    || ['transfer', 'approve', 'get_allowance', 'get_balance', 'get_total_supply'].every((mn) => methodNames.includes(mn))
   ) {
     standard = TokenStandard.fa1_2;
   }
@@ -103,7 +105,8 @@ export function getSymbol(info: IContractInformation): string {
 export function getTokenBalance(
   tokenAddress: string,
   accountAddress: string,
-  client: TezosToolkit
+  client: TezosToolkit,
+  tokenId?: BigNumber | undefined
 ): Promise<BigNumber> {
   return new Promise((resolve, reject) => {
     if (!isContractAddress(tokenAddress)) {
@@ -115,26 +118,40 @@ export function getTokenBalance(
 
     var conversionFactor = new BigNumber(1);
     client.contract.at(tokenAddress).then((c) => {
-      c.storage()
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .then((s: any) => {
-          if (s.token_metadata) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            s.token_metadata.get('0').then((md: any) => {
-              conversionFactor = new BigNumber(10).pow(md?.decimals ?? 0);
-            });
-          }
+      getContractInformation(c).then((ci) => {
 
-          return s.ledger.get(accountAddress);
-        })
+        ci.contract.storage()
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .then((s: any) => {
+            if (s.token_metadata) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              s.token_metadata.get(tokenId?.toString() ?? '0').then((md: any) => {
+                conversionFactor = new BigNumber(10).pow(md?.decimals ?? 0);
+              });
+            }
+
+            return (s.ledger || s.balances).get(accountAddress);
+          })
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .then((acc: any) => {
+            switch (ci.tokenStandard) {
+              case TokenStandard.fa1_2:
+                resolve(
+                  acc?.balance === undefined ? new BigNumber(0) : new BigNumber(acc.balance).dividedBy(conversionFactor)
+                )
+                break;
+              case TokenStandard.fa2:
+                const balances: any = acc?.balances;
+                if (!balances || !balances.get(tokenId?.toString()))
+                  return resolve(new BigNumber(0));
+                return resolve(balances.get(tokenId?.toString()).dividedBy(conversionFactor))
+              default:
+                reject(`Unimplemented token standard. Got: ${ci.tokenStandard.toString()}`);
+            }
+          })
+      })
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .then((acc: any) =>
-          resolve(
-            acc?.balance === undefined ? new BigNumber(0) : new BigNumber(acc.balance).dividedBy(conversionFactor)
-          )
-        )
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .catch((err: any) => reject(err));
+      .catch((err: any) => reject(err));
     });
   });
 }

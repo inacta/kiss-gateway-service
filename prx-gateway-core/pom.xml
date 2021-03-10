@@ -228,7 +228,10 @@
             <artifactId>quarkus-junit5-mockito</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-flyway</artifactId>
+        </dependency>
         <!-- Add custom-dependencies after this line -->
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-exec -->
         <dependency>
@@ -248,5 +251,6 @@
             <groupId>com.proofx.gateway</groupId>
             <artifactId>tezosj</artifactId>
         </dependency>
+
     </dependencies>
 </project>

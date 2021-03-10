@@ -16,36 +16,36 @@ import javax.persistence.Table;
         @Index(name = "IDX_CHIP_UUID", columnList = "CHIP_UUID"),
     }
 )
-@Entity
 // @formatter:on
+@Entity
 public class TagEntity extends BaseEntity {
 
     @Column(name = "CHIP_UUID")
-    private String chipUUID;
+    private String uuid;
 
     @Column(name = "COUNTER")
     private int counter;
 
     @Column(name = "SECRET_KEY")
-    private String secretKey;
+    private String secret;
 
     /**
-     * Gets the value of the secretKey property.
+     * Gets the value of the uuid property.
      *
      * @return possible object is {@link String}
      */
-    public String getSecretKey() {
-        return secretKey;
+    public String getUuid() {
+        return uuid;
     }
 
     /**
-     * Sets the value of the secretKey property
+     * Sets the value of the uuid property
      *
-     * @param secretKey allowed object is {@link String }
+     * @param uuid allowed object is {@link String }
      * @return the {@link TagEntity}
      */
-    public TagEntity setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
+    public TagEntity setUuid(String uuid) {
+        this.uuid = uuid;
         return this;
     }
 
@@ -70,22 +70,22 @@ public class TagEntity extends BaseEntity {
     }
 
     /**
-     * Gets the value of the chipUUID property.
+     * Gets the value of the secret property.
      *
      * @return possible object is {@link String}
      */
-    public String getChipUUID() {
-        return chipUUID;
+    public String getSecret() {
+        return secret;
     }
 
     /**
-     * Sets the value of the chipUUID property
+     * Sets the value of the secret property
      *
-     * @param chipUUID allowed object is {@link String }
+     * @param secret allowed object is {@link String }
      * @return the {@link TagEntity}
      */
-    public TagEntity setChipUUID(String chipUUID) {
-        this.chipUUID = chipUUID;
+    public TagEntity setSecret(String secret) {
+        this.secret = secret;
         return this;
     }
 }

@@ -2,9 +2,10 @@ package com.proofx.gateway.core;
 
 import com.google.common.primitives.Bytes;
 import com.proofx.gateway.api.v1.model.StatusResponse;
+import com.proofx.gateway.api.v1.model.tag.Tag;
 import com.proofx.gateway.core.model.TagEntity;
+import com.proofx.gateway.core.model.mapper.TagMapper;
 import com.proofx.gateway.core.util.TagUtils;
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.Mac;
 import org.bouncycastle.crypto.engines.AESEngine;
@@ -15,6 +16,8 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 
@@ -25,8 +28,13 @@ import java.util.Arrays;
  * @author ProofX
  * @since 1.0.0
  */
+@SuppressWarnings({"java:S3252"})
 @RequestScoped
 public class DefaultTagService {
+
+    @Inject
+    TagMapper tagMapper;
+
     private static final int CMAC_SIZE = 16;
 
     protected byte[] generateSubKey(byte[] key) {
@@ -76,8 +84,8 @@ public class DefaultTagService {
 
 
     protected boolean verify(byte[] uuid, byte[] counter, byte[] cmacMirror) {
-        TagEntity tagEntity = PanacheEntityBase.find("chipUUID", TagUtils.bytesToString(uuid)).firstResult();
-        byte[] key = TagUtils.stringToBytes(tagEntity.getSecretKey());
+        TagEntity tagEntity = TagEntity.find("uuid", TagUtils.bytesToString(uuid)).firstResult();
+        byte[] key = TagUtils.stringToBytes(tagEntity.getSecret());
         byte[] prefix = {0x3C, (byte)0xC3, 0x00, 0x01, 0x00, (byte)0x80};
         byte[] valueToMAC = Bytes.concat(prefix, Bytes.concat(uuid, counter));
         try {
@@ -116,19 +124,33 @@ public class DefaultTagService {
      * @param mac verification code
      * @return status of nfc tag
      */
+    @Transactional
     public StatusResponse read(String uuid, String counter, String mac) {
         // counter is MSB in ASCII but LSB is required for calculation
         byte[] sdmReadCtr = TagUtils.msbToLsb(TagUtils.stringToBytes(counter));
         if (!this.verify(TagUtils.stringToBytes(uuid), sdmReadCtr, TagUtils.stringToBytes(mac))) {
             return new StatusResponse("invalid");
         }
-        TagEntity tagEntity = PanacheEntityBase.find("chipUUID", uuid).firstResult();
+        TagEntity tagEntity = TagEntity.find("uuid", uuid).firstResult();
         int lastCounter = tagEntity.getCounter();
         int currentCounter = Integer.decode("0x" + counter);
         if (lastCounter >= currentCounter) {
             return new StatusResponse("expired");
         }
-        PanacheEntityBase.update("counter = ?1 where CHIP_UUID = ?2", currentCounter, uuid);
+        TagEntity.update("counter = ?1 where CHIP_UUID = ?2", currentCounter, uuid);
         return new StatusResponse("valid");
+    }
+
+    /**
+     * Register new nfc tag
+     *
+     * @param tag tag
+     */
+    @Transactional
+    public void write(Tag tag) {
+        if (TagEntity.find("uuid", tag.getUuid()).firstResult() == null) {
+            TagEntity entity = this.tagMapper.toEntity(tag);
+            entity.persistAndFlush();
+        }
     }
 }

@@ -48,6 +48,18 @@ public class DefaultNodeService {
     }
 
     /**
+     * get token balance
+     *
+     * @param contractAddress contract address
+     * @param address input address
+     * @param tokenId optional token id
+     * @return true or false
+     */
+    public GetBalanceResponse getBalance(String contractAddress, String address, String tokenId) {
+        return this.remoteServiceBuilder.nodeEnpoint().getBalance(contractAddress, address, tokenId);
+    }
+
+    /**
      * transfer tokens
      *
      * @param request tokenTransferRequest
@@ -192,5 +204,4 @@ public class DefaultNodeService {
     public TransactionResponse registerTandemClaims(RegisterTandemClaimsRequest request) {
         return this.remoteServiceBuilder.nodeEnpoint().registerTandemClaims(request);
     }
-
 }

@@ -5,7 +5,9 @@ import com.proofx.gateway.api.v1.model.nodeserver.*;
 import com.proofx.gateway.core.DefaultNodeService;
 import com.proofx.gateway.core.configuration.PropertyService;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
 
@@ -15,6 +17,8 @@ import javax.ws.rs.core.Response;
  * @author ProofX
  * @since 1.0.0
  */
+@RequestScoped
+@Path("/xtzsmartcontract/v1")
 public class DefaultNodeResource implements NodeResource {
 
     private PropertyService propertyService;
@@ -36,6 +40,11 @@ public class DefaultNodeResource implements NodeResource {
     @Override
     public CheckAddressResponse checkAddress(String address) {
         return this.implementationService.checkAddress(address);
+    }
+
+    @Override
+    public GetBalanceResponse getBalance(String contractAddress, String address, String tokenId) {
+        return this.implementationService.getBalance(contractAddress, address, tokenId);
     }
 
     @Override

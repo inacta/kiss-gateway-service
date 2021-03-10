@@ -1,9 +1,9 @@
 import { TezosToolkit, ContractAbstraction, ContractProvider } from '@taquito/taquito';
 import { validateAddress, ValidationResult } from '@taquito/utils';
 import { InMemorySigner } from '@taquito/signer';
-import { getContractInformation, isContractAddress, rpc } from './shared/tokenImplemenation';
+import { getContractInformation, getTokenBalance, isContractAddress, rpc } from './shared/tokenImplemenation';
 import { TokenTransferRequest, GetWhitelistRequest, ModifyWhitelistRequest } from '../types/requestTypes';
-import { TransactionResponse, CheckAddressResponse, WhitelistResponse } from '../types/responseTypes';
+import { TransactionResponse, CheckAddressResponse, WhitelistResponse, GetBalanceResponse } from '../types/responseTypes';
 import { TokenStandard, TokenType, TransferStatus, Status, WhitelistVersion } from '../types/types';
 import BigNumber from 'bignumber.js';
 import { TransactionOperation } from '@taquito/taquito/dist/types/operations/transaction-operation';
@@ -99,6 +99,14 @@ export async function modifyWhitelist(request: ModifyWhitelistRequest, add: bool
   } else {
     return new TransactionResponse(TransferStatus.ERROR, 'Whitelist version not supported');
   }
+}
+
+export async function getBalance(contractAddress: string, address: string, tokenId: BigNumber | undefined): Promise<GetBalanceResponse> {
+  const client = new TezosToolkit();
+  client.setProvider({ rpc });
+
+  const balance = await getTokenBalance(contractAddress, address, client, tokenId);
+  return new GetBalanceResponse(balance.toString());
 }
 
 export async function handleTransfer(request: TokenTransferRequest): Promise<TransactionResponse> {
