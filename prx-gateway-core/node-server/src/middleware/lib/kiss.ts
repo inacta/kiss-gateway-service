@@ -363,13 +363,13 @@ export async function registerTandemClaims(request: RegisterTandemClaimsRequest)
       }
     };
   }
-  function userClaimRequestObjectToSmartContractObject(adminClaim: KissTandemUserClaim) {
+  function userClaimRequestObjectToSmartContractObject(userClaim: KissTandemUserClaim) {
     return {
-      helpers: adminClaim.helpers,
-      activities: adminClaim.activities,
-      minutes: adminClaim.minutes,
+      helpers: userClaim.helpers,
+      activities: userClaim.activities,
+      minutes: userClaim.minutes,
       helpees: {
-        signed_helpee: adminClaim.proofs.map((proof) => {
+        signed_helpee: userClaim.proofs.map((proof) => {
           return {
             address: proof.address,
             pk: proof.publicKey,
@@ -419,8 +419,8 @@ export async function registerTandemClaims(request: RegisterTandemClaimsRequest)
   const sender = await signer.publicKeyHash();
 
   // The user claims must be sorted by nonce at this point
-  const contractUserClaims: object[] = request.userClaims.map((claim) => userClaimRequestObjectToSmartContractObject(claim));
-  const contractAdminClaims: object[] = request.adminClaims.map((claim) => adminClaimRequestObjectToSmartContractObject(claim));
+  const contractUserClaims: object[] = request.userClaims.map((userClaim) => userClaimRequestObjectToSmartContractObject(userClaim));
+  const contractAdminClaims: object[] = request.adminClaims.map((adminClaim) => adminClaimRequestObjectToSmartContractObject(adminClaim));
   const contractClaims = contractUserClaims.concat(contractAdminClaims);
 
   // Send the transaction

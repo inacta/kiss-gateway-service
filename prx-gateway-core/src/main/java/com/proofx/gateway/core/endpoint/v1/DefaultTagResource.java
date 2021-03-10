@@ -1,14 +1,18 @@
 package com.proofx.gateway.core.endpoint.v1;
 
 import com.proofx.gateway.api.v1.TagResource;
-import com.proofx.gateway.api.v1.model.NewTagParams;
+import com.proofx.gateway.api.v1.model.ServiceRuntimeException;
 import com.proofx.gateway.api.v1.model.StatusResponse;
+import com.proofx.gateway.api.v1.model.tag.Tag;
 import com.proofx.gateway.core.DefaultTagService;
 import com.proofx.gateway.core.configuration.PropertyService;
 import io.vertx.ext.web.RoutingContext;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 /**
  * Tag verification
@@ -16,6 +20,8 @@ import javax.ws.rs.core.Context;
  * @author ProofX
  * @since 1.0.0
  */
+@RequestScoped
+@Path("/tag/v1")
 public class DefaultTagResource implements TagResource {
 
     private PropertyService propertyService;
@@ -38,10 +44,11 @@ public class DefaultTagResource implements TagResource {
     }
 
     @Override
-    public String write(NewTagParams params) {
-        if (!routingContext.request().getHeader("Authorization").equals("e9361336-cb7e-43bc-b89c-3e066c365dc0")) {
-            return "Unauthorized";
+    public void write(Tag tag) {
+        String authHeader = routingContext.request().getHeader("Authorization");
+        if (authHeader == null || !authHeader.equals("e9361336-cb7e-43bc-b89c-3e066c365dc0")) {
+            throw new ServiceRuntimeException(UNAUTHORIZED);
         }
-        return null;
+        this.implementationService.write(tag);
     }
 }

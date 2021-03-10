@@ -1,4 +1,5 @@
 import { TransferStatus, Status } from './types';
+import BigNumber from 'bignumber.js';
 
 export class TransactionResponse {
   public status: TransferStatus;
@@ -25,6 +26,14 @@ export class TransactionResponse {
     this.gasPrice = gasPrice || null;
     this.gasUsed = gasUsed || null;
     this.gasLimit = gasLimit || null;
+  }
+}
+
+export class GetBalanceResponse {
+  public balance: string;
+
+  constructor(balance: string) {
+    this.balance = balance;
   }
 }
 

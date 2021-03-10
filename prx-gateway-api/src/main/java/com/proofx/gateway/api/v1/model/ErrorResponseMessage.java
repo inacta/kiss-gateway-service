@@ -13,7 +13,8 @@ public enum ErrorResponseMessage {
     PROPERTY_NOT_FOUND_ERROR("PRXSERCIVE-ERROR-0001", "The system property with key '%s' can not be resolved for tenant '%s'."),
     UNAUTHORIZED_NO_TOKEN_PROVIDED("PRXSERCIVE-ERROR-0002", "Unauthorized. Was a bearer token provided in the authorization header?"),
     CONTRACT_EXECUTION_NOT_ENABLED("PRXSERCIVE-ERROR-0003", "Contract execution is not enabled?"),
-    UNAUTHORIZED("PRXSERCIVE-ERROR-0004", "Unauthorized");
+    UNAUTHORIZED("PRXSERCIVE-ERROR-0004", "Unauthorized"),
+    INVALID_REQUEST("PRXSERCIVE-ERROR-0005", "Invalid Request");
 
     private final String id;
     private final String message;

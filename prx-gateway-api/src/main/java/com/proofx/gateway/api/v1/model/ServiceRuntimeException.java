@@ -63,6 +63,13 @@ public class ServiceRuntimeException extends WebApplicationException {
     }
 
     /**
+     * Throws a status error
+     */
+    public ServiceRuntimeException(Status status) {
+        super(status);
+    }
+
+    /**
      * The constructor for creating an instance with a custom HTTP response-status
      *
      * @param errorMessage

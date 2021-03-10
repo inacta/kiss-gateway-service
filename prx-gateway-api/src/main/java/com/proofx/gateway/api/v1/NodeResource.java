@@ -39,6 +39,20 @@ public interface NodeResource {
     CheckAddressResponse checkAddress(@QueryParam("address") String address);
 
     /**
+     * get token balance
+     *
+     * @param contractAddress contract address
+     * @param address input address
+     * @param tokenId optional token id
+     * @return true or false
+     */
+    @GET
+    @Path("/getBalance")
+    @QueryParam("address")
+    @Produces(MediaType.APPLICATION_JSON)
+    GetBalanceResponse getBalance(@QueryParam("contractAddress") String contractAddress, @QueryParam("address") String address, @QueryParam("tokenId") String tokenId);
+
+    /**
      * transfer tokens
      *
      * @param request tokenTransferRequest

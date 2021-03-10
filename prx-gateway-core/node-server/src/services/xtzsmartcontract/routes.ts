@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { calculateUserSignature, callAddAllowedActivity, callSuspendAllowedActivity, changeActivityLog, changeAdminThis, getActivityLogAddress, getAdmin, getAllowedActivities, getNonce, getSuspendedActivities, registerTandemClaims } from '../../middleware/lib/kiss';
-import { handleTransfer, isValid, getWhitelist, modifyWhitelist } from '../../middleware/lib/tezos';
-import { TransactionResponse, WhitelistResponse } from '../../middleware/types/responseTypes';
+import { handleTransfer, isValid, getWhitelist, modifyWhitelist, getBalance } from '../../middleware/lib/tezos';
+import { GetBalanceResponse, TransactionResponse, WhitelistResponse } from '../../middleware/types/responseTypes';
+import BigNumber from 'bignumber.js';
 
 export default [
   {
@@ -20,6 +21,19 @@ export default [
       async (req: Request, res: Response) => {
         const address: string = req.query.address as string;
         res.status(200).send(isValid(address));
+      },
+    ],
+  },
+  {
+    path: '/xtzsmartcontract/v1/getBalance',
+    method: 'get',
+    handler: [
+      async (req: Request, res: Response) => {
+        const contractAddress: string = req.query.contractAddress as string;
+        const address: string = req.query.address as string;
+        const tokenId: BigNumber | undefined = req.query.tokenId ? new BigNumber(req.query.tokenId as string) : undefined;
+        const response: GetBalanceResponse = await getBalance(contractAddress, address, tokenId);
+        res.status(200).send(response);
       },
     ],
   },
