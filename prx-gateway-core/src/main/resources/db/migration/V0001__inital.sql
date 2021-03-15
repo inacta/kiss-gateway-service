@@ -5,6 +5,8 @@
 
     create table TAG (
        ID varchar(255) not null,
+        CREATED timestamp not null,
+        LAST_UPDATE timestamp not null,
         COUNTER int4,
         SECRET_KEY varchar(255),
         CHIP_UUID varchar(255),
@@ -13,8 +15,9 @@
 
     create table VOUCHERS (
        ID varchar(255) not null,
+        CREATED timestamp not null,
+        LAST_UPDATE timestamp not null,
         ACTIVE boolean,
-        CREATED_AT varchar(255),
         EMAIL varchar(255),
         EMAIL_SENT boolean,
         ORDER_NUMBER int4,

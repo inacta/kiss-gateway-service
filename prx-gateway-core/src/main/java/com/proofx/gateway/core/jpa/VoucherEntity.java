@@ -1,4 +1,4 @@
-package com.proofx.gateway.core.model;
+package com.proofx.gateway.core.jpa;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,9 +23,6 @@ public class VoucherEntity extends BaseEntity {
 
     @Column(name = "EMAIL")
     private String email;
-
-    @Column(name = "CREATED_AT")
-    private String created_at;
 
     @Column(name = "ORDER_NUMBER")
     private Integer order_number;
@@ -62,26 +59,6 @@ public class VoucherEntity extends BaseEntity {
      */
     public VoucherEntity setEmail(String email) {
         this.email = email;
-        return this;
-    }
-
-    /**
-     * Gets the value of the created_at property.
-     *
-     * @return possible object is {@link String}
-     */
-    public String getCreated_at() {
-        return created_at;
-    }
-
-    /**
-     * Sets the value of the created_at property
-     *
-     * @param created_at allowed object is {@link String }
-     * @return the {@link VoucherEntity}
-     */
-    public VoucherEntity setCreated_at(String created_at) {
-        this.created_at = created_at;
         return this;
     }
 

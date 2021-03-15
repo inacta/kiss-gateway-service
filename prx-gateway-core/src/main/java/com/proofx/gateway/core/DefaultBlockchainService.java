@@ -6,13 +6,11 @@ import com.proofx.gateway.core.configuration.PropertyService;
 import com.proofx.gateway.tezosj.TezosJ;
 import com.proofx.gateway.tezosj.contracts.FA1_2Contract;
 import com.proofx.gateway.tezosj.exceptions.InvalidAddressException;
-import io.vertx.ext.web.RoutingContext;
 import org.json.JSONObject;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.core.Context;
 
 /**
  * The default functional implementation of the REST endpoint for the Blockchain service

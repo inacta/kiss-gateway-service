@@ -1,7 +1,7 @@
 package com.proofx.gateway.core.model.mapper;
 
 import com.proofx.gateway.api.v1.model.tag.Tag;
-import com.proofx.gateway.core.model.TagEntity;
+import com.proofx.gateway.core.jpa.TagEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

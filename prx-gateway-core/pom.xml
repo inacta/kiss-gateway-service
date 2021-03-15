@@ -232,6 +232,15 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-flyway</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-scheduler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-context-propagation</artifactId>
+        </dependency>
+
         <!-- Add custom-dependencies after this line -->
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-exec -->
         <dependency>
@@ -250,6 +259,11 @@
         <dependency>
             <groupId>com.proofx.gateway</groupId>
             <artifactId>tezosj</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.mailjet</groupId>
+            <artifactId>mailjet-client</artifactId>
         </dependency>
 
     </dependencies>

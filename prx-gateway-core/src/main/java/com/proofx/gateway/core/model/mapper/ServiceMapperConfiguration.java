@@ -1,7 +1,7 @@
 package com.proofx.gateway.core.model.mapper;
 
 import com.proofx.gateway.api.v1.model.Base;
-import com.proofx.gateway.core.model.BaseEntity;
+import com.proofx.gateway.core.jpa.BaseEntity;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingInheritanceStrategy;
