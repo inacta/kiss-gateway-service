@@ -15,7 +15,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class WebhookRequest {
     String email;
-    String created_at;
     Integer order_number;
     List<LineItem> line_items;
 
@@ -36,26 +35,6 @@ public class WebhookRequest {
      */
     public WebhookRequest setEmail(String email) {
         this.email = email;
-        return this;
-    }
-
-    /**
-     * Gets the value of the created_at property.
-     *
-     * @return possible object is {@link String}
-     */
-    public String getCreated_at() {
-        return created_at;
-    }
-
-    /**
-     * Sets the value of the created_at property
-     *
-     * @param created_at allowed object is {@link String }
-     * @return the {@link WebhookRequest}
-     */
-    public WebhookRequest setCreated_at(String created_at) {
-        this.created_at = created_at;
         return this;
     }
 

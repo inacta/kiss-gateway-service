@@ -2,7 +2,7 @@ package com.proofx.gateway.core.model.mapper;
 
 import com.proofx.gateway.api.v1.model.humanity.LineItem;
 import com.proofx.gateway.api.v1.model.humanity.WebhookRequest;
-import com.proofx.gateway.core.model.VoucherEntity;
+import com.proofx.gateway.core.jpa.VoucherEntity;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.mapstruct.*;
 

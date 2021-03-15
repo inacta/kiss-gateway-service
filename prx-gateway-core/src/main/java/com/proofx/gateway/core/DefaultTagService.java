@@ -3,7 +3,7 @@ package com.proofx.gateway.core;
 import com.google.common.primitives.Bytes;
 import com.proofx.gateway.api.v1.model.StatusResponse;
 import com.proofx.gateway.api.v1.model.tag.Tag;
-import com.proofx.gateway.core.model.TagEntity;
+import com.proofx.gateway.core.jpa.TagEntity;
 import com.proofx.gateway.core.model.mapper.TagMapper;
 import com.proofx.gateway.core.util.TagUtils;
 import org.bouncycastle.crypto.BlockCipher;

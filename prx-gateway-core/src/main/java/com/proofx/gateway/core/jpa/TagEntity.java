@@ -1,4 +1,4 @@
-package com.proofx.gateway.core.model;
+package com.proofx.gateway.core.jpa;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

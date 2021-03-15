@@ -4,9 +4,7 @@ import io.quarkus.vertx.web.Body;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import javax.transaction.Transactional;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -30,4 +28,15 @@ public interface HumanityResource {
     @Consumes(MediaType.APPLICATION_JSON)
     void webhook(@Body String body);
 
+    /**
+     * Get coupon for voucher
+     *
+     * @param voucherCode voucher code
+     * @return generated html
+     */
+    @GET
+    @Transactional
+    @Path("/voucher/{code}")
+    @Produces("text/html")
+    String voucherCoupon(@PathParam("code") String voucherCode);
 }

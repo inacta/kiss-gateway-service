@@ -4,6 +4,7 @@ import com.proofx.gateway.api.v1.model.ServiceRuntimeException;
 import io.vertx.ext.web.RoutingContext;
 
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.IllegalProductException;
 import javax.inject.Inject;
 import javax.ws.rs.core.Context;
 
@@ -30,13 +31,21 @@ public class PropertyService {
     private static final String PASSPHRASE = "PASSPHRASE";
     private static final String VOUCHER_PRODUCT_ID = "VOUCHER_PRODUCT_ID";
     private static final String SHOPIFY_KEY = "SHOPIFY_KEY";
+    private static final String MJ_APIKEY_PUBLIC = "MJ_APIKEY_PUBLIC";
+    private static final String MJ_APIKEY_PRIVATE = "MJ_APIKEY_PRIVATE";
+    private static final String MJ_SENDER_EMAIL = "MJ_SENDER_EMAIL";
+    private static final String ENVIRONMENT = "ENVIRONMENT";
+    private static final String VOUCHER_URI = "VOUCHER_URI";
 
     private final String tenant;
 
     @Inject
     PropertyService(@Context final RoutingContext routingContext) {
-
-        this.tenant = routingContext.request().headers().contains("tenant") ? routingContext.request().getHeader("tenant") : "dev";
+        if (isHttpRequest(routingContext)) {
+            this.tenant = routingContext.request().headers().contains("tenant") ? routingContext.request().getHeader("tenant") : "dev";
+        } else {
+            this.tenant = "dev";
+        }
     }
 
     /**
@@ -77,6 +86,15 @@ public class PropertyService {
         throw new ServiceRuntimeException(PROPERTY_NOT_FOUND_ERROR, key, this.tenant);
     }
 
+    private boolean isHttpRequest(RoutingContext routingContext) {
+        try {
+            routingContext.request();
+            return true;
+        } catch (IllegalProductException e) {
+            return false;
+        }
+    }
+
     public String getTezosProvider() {
         return this.getProperty(TEZOS_PROVIDER);
     }
@@ -88,4 +106,13 @@ public class PropertyService {
     }
     public Long getVoucherProductId() { return Long.parseLong(this.getProperty(VOUCHER_PRODUCT_ID)); }
     public String getShopifyKey() { return this.getProperty(SHOPIFY_KEY); }
+    public String getMjApikeyPublic() { return this.getProperty(MJ_APIKEY_PUBLIC); }
+    public String getMjApikeyPrivate() { return this.getProperty(MJ_APIKEY_PRIVATE); }
+    public String getSenderEmail() { return this.getProperty(MJ_SENDER_EMAIL); }
+    public boolean isProduction() {
+        return !this.getProperty(ENVIRONMENT).equals("dev");
+    }
+    public String getVoucherUri() {
+        return this.getProperty(VOUCHER_URI);
+    }
 }

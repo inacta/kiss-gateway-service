@@ -4,6 +4,7 @@ import com.proofx.gateway.api.v1.model.ServiceRuntimeException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 
 /**
