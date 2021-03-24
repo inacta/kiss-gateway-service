@@ -41,11 +41,13 @@ public class DefaultHumanityService {
         ArrayList<String> newVouchers = new ArrayList<>();
         for (LineItem item: webhookRequest.getLine_items()) {
             if (item.getProduct_id().equals(propertyService.getVoucherProductId())) {
-                VoucherEntity entity = new VoucherEntity();
-                this.voucherMapper.toEntity(item, entity);
-                this.voucherMapper.toEntity(webhookRequest, entity);
-                entity.persistAndFlush();
-                newVouchers.add(entity.getVoucher());
+                for (Integer i = 0; i < item.getQuantity(); i++) {
+                    VoucherEntity entity = new VoucherEntity();
+                    this.voucherMapper.toEntity(item, entity);
+                    this.voucherMapper.toEntity(webhookRequest, entity);
+                    entity.persistAndFlush();
+                    newVouchers.add(entity.getVoucher());
+                }
             }
         }
         return newVouchers;

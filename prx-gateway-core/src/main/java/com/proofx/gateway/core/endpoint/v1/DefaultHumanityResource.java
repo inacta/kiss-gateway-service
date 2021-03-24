@@ -75,14 +75,20 @@ public class DefaultHumanityResource implements HumanityResource {
             if (shopifyHmacHeader.equals(calculatedHash)) {
                 List<String> vouchers = this.implementationService.generateVoucher(webhookRequest);
                 this.executor.execute(() -> {
-                    for (String voucher: vouchers) {
-                        try {
-                                utx.begin();
-                            this.emailService.sendEmail(voucher);
+                    try {
+                        if (vouchers.size() >= 10) {
+                            utx.begin();
+                            this.emailService.sendEmailBulk(vouchers);
                             utx.commit();
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+                        } else {
+                            for (String voucher: vouchers) {
+                                    utx.begin();
+                                    this.emailService.sendEmail(voucher);
+                                    utx.commit();
+                            }
                         }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
                 });
             }
