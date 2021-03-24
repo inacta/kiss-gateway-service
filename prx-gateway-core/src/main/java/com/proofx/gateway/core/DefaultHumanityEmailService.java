@@ -35,7 +35,7 @@ public class DefaultHumanityEmailService {
 
     MailjetClient mailjetClient;
 
-    static final String CSVSeparator = ";";
+    static final String CSV_SEPARATOR = ";";
 
     @PostConstruct
     void init() {
@@ -105,9 +105,9 @@ public class DefaultHumanityEmailService {
 
         StringBuilder csv = new StringBuilder();
         csv.append("Voucher");
-        csv.append(CSVSeparator);
+        csv.append(CSV_SEPARATOR);
         csv.append("Price");
-        csv.append(CSVSeparator);
+        csv.append(CSV_SEPARATOR);
         csv.append(System.lineSeparator());
 
         String email = null;
@@ -123,9 +123,9 @@ public class DefaultHumanityEmailService {
                 }
             }
             csv.append(entity.getVoucher());
-            csv.append(CSVSeparator);
+            csv.append(CSV_SEPARATOR);
             csv.append(entity.getPrice());
-            csv.append(CSVSeparator);
+            csv.append(CSV_SEPARATOR);
             csv.append(System.lineSeparator());
         }
 
