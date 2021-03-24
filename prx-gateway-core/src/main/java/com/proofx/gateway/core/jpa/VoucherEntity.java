@@ -27,9 +27,6 @@ public class VoucherEntity extends BaseEntity {
     @Column(name = "ORDER_NUMBER")
     private Integer order_number;
 
-    @Column(name = "QUANTITY")
-    private Integer quantity;
-
     @Column(name = "PRICE")
     private String price;
 
@@ -79,26 +76,6 @@ public class VoucherEntity extends BaseEntity {
      */
     public VoucherEntity setOrder_number(Integer order_number) {
         this.order_number = order_number;
-        return this;
-    }
-
-    /**
-     * Gets the value of the quantity property.
-     *
-     * @return possible object is {@link Integer}
-     */
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    /**
-     * Sets the value of the quantity property
-     *
-     * @param quantity allowed object is {@link Integer }
-     * @return the {@link VoucherEntity}
-     */
-    public VoucherEntity setQuantity(Integer quantity) {
-        this.quantity = quantity;
         return this;
     }
 

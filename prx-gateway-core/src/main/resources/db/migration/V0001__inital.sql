@@ -22,8 +22,7 @@
         EMAIL_SENT boolean,
         ORDER_NUMBER int4,
         PRICE varchar(255),
-        QUANTITY int4,
-        VOUCHER varchar(255),
+        VOUCHER varchar(255) UNIQUE,
         primary key (ID)
     );
 create index IDX_CHIP_UUID on TAG (CHIP_UUID);
