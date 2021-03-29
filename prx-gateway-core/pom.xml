@@ -252,6 +252,10 @@
             <artifactId>commons-exec</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.proofx.gateway</groupId>
             <artifactId>prx-gateway-api</artifactId>
         </dependency>
