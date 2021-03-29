@@ -19,6 +19,8 @@ import javax.inject.Inject;
 import javax.transaction.UserTransaction;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -100,7 +102,15 @@ public class DefaultHumanityResource implements HumanityResource {
 
     @Override
     public String voucherCoupon(String voucherCode) {
-        return "<h1>" + voucherCode + "<h1>";
+        if (!voucherCode.matches("^([A-Z0-9]{4} ){3}[A-Z0-9]{4}$")) {
+            throw new ServiceRuntimeException(Response.Status.BAD_REQUEST);
+        }
+        try {
+            return new String(this.getClass().getResourceAsStream("/templates/voucher.html").readAllBytes(), StandardCharsets.UTF_8).replace("@@@_VOUCHERCODE_@@@", voucherCode);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ServiceRuntimeException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }
