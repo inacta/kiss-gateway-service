@@ -78,7 +78,7 @@ public class DefaultHumanityResource implements HumanityResource {
                 List<String> vouchers = this.implementationService.generateVoucher(webhookRequest);
                 this.executor.execute(() -> {
                     try {
-                        if (vouchers.size() >= 10) {
+                        if (vouchers.size() > 10) {
                             utx.begin();
                             this.emailService.sendEmailBulk(vouchers);
                             utx.commit();
