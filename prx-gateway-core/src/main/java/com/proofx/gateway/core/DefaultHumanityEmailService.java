@@ -78,7 +78,7 @@ public class DefaultHumanityEmailService {
 
         String html;
         try {
-            html = new String(this.getClass().getResourceAsStream("/templates/email_single.html").readAllBytes(), StandardCharsets.UTF_8).replace("@@@_VOUCHERCODE_@@@", entity.getVoucher()).replace("@@@_VOUCHERPRICE_@@@", entity.getPrice()).replace("@@@_VOUCHERURL_@@@", this.propertyService.getVoucherUri() + entity.getVoucher());
+            html = new String(this.getClass().getResourceAsStream("/templates/email_single.html").readAllBytes(), StandardCharsets.UTF_8).replace("@@@_VOUCHERCODE_@@@", entity.getVoucher()).replace("@@@_VOUCHERPRICE_@@@", entity.getPrice()).replace("@@@_VOUCHERURL_@@@", this.propertyService.getVoucherUri() + entity.getVoucher().replace(" ", "%20"));
         } catch (IOException e) {
             throw new ServiceRuntimeException(Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -142,7 +142,7 @@ public class DefaultHumanityEmailService {
             csv.append(CSV_SEPARATOR);
             csv.append(System.lineSeparator());
             try {
-                htmlItems.append(new String(this.getClass().getResourceAsStream("/templates/email_multiple_item.html").readAllBytes(), StandardCharsets.UTF_8).replace("@@@_VOUCHERCODE_@@@", entity.getVoucher()).replace("@@@_VOUCHERPRICE_@@@", entity.getPrice()).replace("@@@_VOUCHERURL_@@@", this.propertyService.getVoucherUri() + entity.getVoucher()));
+                htmlItems.append(new String(this.getClass().getResourceAsStream("/templates/email_multiple_item.html").readAllBytes(), StandardCharsets.UTF_8).replace("@@@_VOUCHERCODE_@@@", entity.getVoucher()).replace("@@@_VOUCHERPRICE_@@@", entity.getPrice()).replace("@@@_VOUCHERURL_@@@", this.propertyService.getVoucherUri() + entity.getVoucher().replace(" ", "%20")));
             } catch (IOException e) {
                 throw new ServiceRuntimeException(Response.Status.INTERNAL_SERVER_ERROR);
             }
