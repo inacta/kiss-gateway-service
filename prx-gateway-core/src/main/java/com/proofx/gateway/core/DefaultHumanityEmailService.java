@@ -12,6 +12,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.UserTransaction;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
@@ -74,12 +76,19 @@ public class DefaultHumanityEmailService {
         }
         VoucherEntity entity = VoucherEntity.find("voucher", voucherCode).firstResult();
 
+        String html;
+        try {
+            html = new String(this.getClass().getResourceAsStream("/templates/email_single.html").readAllBytes(), StandardCharsets.UTF_8).replace("@@@_VOUCHERCODE_@@@", entity.getVoucher()).replace("@@@_VOUCHERPRICE_@@@", entity.getPrice()).replace("@@@_VOUCHERURL_@@@", this.propertyService.getVoucherUri() + entity.getVoucher());
+        } catch (IOException e) {
+            throw new ServiceRuntimeException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+
         try {
             TransactionalEmail message = TransactionalEmail
                     .builder()
                     .to(new SendContact(entity.getEmail()))
                     .from(new SendContact(propertyService.getSenderEmail(), "Humanity Inspired"))
-                    .htmlPart("<h1>This is your voucher code</h1><br><p>" + voucherCode + "</p><p>" + entity.getPrice() + "</p><p>Download your voucher <a href=\"" + this.propertyService.getVoucherUri() + entity.getVoucher().replace(" ", "%20") + "\">here</a>!</p>")
+                    .htmlPart(html)
                     .subject("Your Experience Token Voucher")
                     .trackOpens(TrackOpens.ENABLED)
                     .build();
@@ -108,9 +117,12 @@ public class DefaultHumanityEmailService {
         csv.append(CSV_SEPARATOR);
         csv.append("Price");
         csv.append(CSV_SEPARATOR);
+        csv.append("Url");
+        csv.append(CSV_SEPARATOR);
         csv.append(System.lineSeparator());
 
         String email = null;
+        StringBuilder htmlItems = new StringBuilder();
 
         for (String voucher: vouchers) {
             VoucherEntity entity = VoucherEntity.find("voucher", voucher).firstResult();
@@ -126,7 +138,22 @@ public class DefaultHumanityEmailService {
             csv.append(CSV_SEPARATOR);
             csv.append(entity.getPrice());
             csv.append(CSV_SEPARATOR);
+            csv.append(this.propertyService.getVoucherUri() + entity.getVoucher());
+            csv.append(CSV_SEPARATOR);
             csv.append(System.lineSeparator());
+            try {
+                htmlItems.append(new String(this.getClass().getResourceAsStream("/templates/email_multiple_item.html").readAllBytes(), StandardCharsets.UTF_8).replace("@@@_VOUCHERCODE_@@@", entity.getVoucher()).replace("@@@_VOUCHERPRICE_@@@", entity.getPrice()).replace("@@@_VOUCHERURL_@@@", this.propertyService.getVoucherUri() + entity.getVoucher()));
+            } catch (IOException e) {
+                throw new ServiceRuntimeException(Response.Status.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        String html;
+
+        try {
+            html = new String(this.getClass().getResourceAsStream("/templates/email_multiple.html").readAllBytes(), StandardCharsets.UTF_8).replace("@@@_VOUCHERS_@@@", htmlItems.toString());
+        } catch (IOException e) {
+            throw new ServiceRuntimeException(Response.Status.INTERNAL_SERVER_ERROR);
         }
 
         try {
@@ -136,7 +163,7 @@ public class DefaultHumanityEmailService {
                     .builder()
                     .to(new SendContact(email))
                     .from(new SendContact(propertyService.getSenderEmail(), "Humanity Inspired"))
-                    .htmlPart("<h1>Here are your voucher codes</h1><p>You can find a list of vouchers in the file attached to this email</p>")
+                    .htmlPart(html)
                     .subject("Your Experience Token Vouchers")
                     .attachment(attachment)
                     .trackOpens(TrackOpens.ENABLED)
