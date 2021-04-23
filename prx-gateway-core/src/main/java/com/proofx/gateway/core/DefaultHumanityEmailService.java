@@ -37,7 +37,7 @@ public class DefaultHumanityEmailService {
 
     MailjetClient mailjetClient;
 
-    static final String CSV_SEPARATOR = ";";
+    static final String CSV_SEPARATOR = ",";
 
     @PostConstruct
     void init() {
@@ -138,7 +138,7 @@ public class DefaultHumanityEmailService {
             csv.append(CSV_SEPARATOR);
             csv.append(entity.getPrice());
             csv.append(CSV_SEPARATOR);
-            csv.append(this.propertyService.getVoucherUri() + entity.getVoucher());
+            csv.append(this.propertyService.getVoucherUri() + entity.getVoucher().replace(" ", "%20"));
             csv.append(CSV_SEPARATOR);
             csv.append(System.lineSeparator());
             try {
