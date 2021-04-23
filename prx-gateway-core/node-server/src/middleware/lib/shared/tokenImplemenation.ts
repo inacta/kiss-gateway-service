@@ -3,7 +3,7 @@ import { IContractInformation, ITokenMetadata, TokenStandard } from '../../types
 import { ValidationResult, validateAddress } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
 
-export const rpc = process.env.NODE_RPC_URI ?? 'https://api.tez.ie/rpc/delphinet';
+export const rpc = process.env.NODE_RPC_URI ?? 'https://tezos-edonet.inacta.services';
 
 // This file is to define helper functions for FA1.2 and FA2 token implementations
 
