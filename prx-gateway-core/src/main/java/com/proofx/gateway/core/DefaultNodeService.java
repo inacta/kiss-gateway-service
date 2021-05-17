@@ -156,6 +156,15 @@ public class DefaultNodeService {
     }
 
     /**
+     * generateKeyPair
+     *
+     * @return KeyPair
+     */
+    public KeyPair generateKeyPair() {
+        return this.remoteServiceBuilder.nodeEnpoint().generateKeyPair();
+    }
+
+    /**
      * callSuspendAllowedActivity
      *
      * @param request CallSuspendAllowedActivityRequest

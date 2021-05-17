@@ -98,6 +98,11 @@ public class DefaultNodeResource implements NodeResource {
     }
 
     @Override
+    public KeyPair generateKeyPair() {
+        return this.implementationService.generateKeyPair();
+    }
+
+    @Override
     public TransactionResponse callSuspendAllowedActivity(CallSuspendAllowedActivityRequest request) {
         return this.implementationService.callSuspendAllowedActivity(request);
     }
