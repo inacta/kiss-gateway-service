@@ -1,12 +1,13 @@
 import { TezosToolkit, ContractAbstraction, ContractProvider } from '@taquito/taquito';
-import { validateAddress, ValidationResult } from '@taquito/utils';
+import { Prefix, ValidationResult, b58cencode, prefix, validateAddress } from '@taquito/utils';
 import { InMemorySigner } from '@taquito/signer';
 import { getContractInformation, getTokenBalance, isContractAddress, rpc } from './shared/tokenImplemenation';
 import { TokenTransferRequest, GetWhitelistRequest, ModifyWhitelistRequest } from '../types/requestTypes';
-import { TransactionResponse, CheckAddressResponse, WhitelistResponse, GetBalanceResponse } from '../types/responseTypes';
+import { TransactionResponse, CheckAddressResponse, WhitelistResponse, GetBalanceResponse, KeyPair } from '../types/responseTypes';
 import { TokenStandard, TokenType, TransferStatus, Status, WhitelistVersion } from '../types/types';
 import BigNumber from 'bignumber.js';
 import { TransactionOperation } from '@taquito/taquito/dist/types/operations/transaction-operation';
+import { randomFillSync } from 'crypto';
 
 export function isValid(address: string): CheckAddressResponse {
   return new CheckAddressResponse(validateAddress(address) === ValidationResult.VALID);
@@ -173,4 +174,34 @@ export async function handleTransfer(request: TokenTransferRequest): Promise<Tra
     tx.consumedGas,
     tx.gasLimit.toString()
   );
+}
+
+export async function generateKeyPair(): Promise<KeyPair> {
+  try {
+    const randomBytes = new Uint8Array(32);
+    const randomBytesCheck = new Uint8Array(32);
+    const zeros = new Uint8Array(32);
+
+    // Cryptographically secure PRNG
+    randomFillSync(randomBytes);
+    randomFillSync(randomBytesCheck);
+
+    // Sanity check of used entropy
+    const randomBytesStr = JSON.stringify(randomBytes);
+    const randomBytesCheckStr = JSON.stringify(randomBytesCheck);
+    if (randomBytesStr === randomBytesCheckStr || JSON.stringify(zeros) === randomBytesStr) {
+      throw new Error("Bad randomness. Got: randomBytes = " + randomBytesStr + ", randomBytesCheck = " + randomBytesCheckStr);
+    }
+
+    const formattedSecretKey: string = b58cencode(randomBytes, prefix[Prefix.SPSK]);
+    const signer = await InMemorySigner.fromSecretKey(formattedSecretKey);
+    const publicKey = await signer.publicKey();
+    const address = await signer.publicKeyHash();
+
+    return new KeyPair(formattedSecretKey, publicKey, address);
+  } catch (e) {
+    console.error(e);
+    console.error(e.message);
+    return new KeyPair("", "", "");
+  }
 }

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { calculateUserSignature, callAddAllowedActivity, callSuspendAllowedActivity, changeActivityLog, changeAdminThis, getActivityLogAddress, getAdmin, getAllowedActivities, getNonce, getSuspendedActivities, registerTandemClaims } from '../../middleware/lib/kiss';
-import { handleTransfer, isValid, getWhitelist, modifyWhitelist, getBalance } from '../../middleware/lib/tezos';
+import { handleTransfer, isValid, generateKeyPair, getWhitelist, modifyWhitelist, getBalance } from '../../middleware/lib/tezos';
 import { GetBalanceResponse, TransactionResponse, WhitelistResponse } from '../../middleware/types/responseTypes';
 import BigNumber from 'bignumber.js';
 
@@ -138,6 +138,15 @@ export default [
     handler: [
       async (req: Request, res: Response) => {
         res.status(200).send(await calculateUserSignature(req.body));
+      },
+    ],
+  },
+  {
+    path: '/xtzsmartcontract/v1/generateKeyPair',
+    method: 'get',
+    handler: [
+      async (req: Request, res: Response) => {
+        res.status(200).send(await generateKeyPair());
       },
     ],
   },
