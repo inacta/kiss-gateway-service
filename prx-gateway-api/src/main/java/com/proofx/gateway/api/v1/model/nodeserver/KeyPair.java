@@ -1,7 +1,7 @@
 package com.proofx.gateway.api.v1.model.nodeserver;
 
 /**
- * class
+ * key pair
  *
  * @author ProofX
  * @since 1.0.0
