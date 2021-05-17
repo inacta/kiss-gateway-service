@@ -56,3 +56,15 @@ export class WhitelistResponse {
     this.whitelisted = valid;
   }
 }
+
+export class KeyPair {
+  public secretKey: String;
+  public publicKey: String;
+  public address: String;
+
+  constructor(secretKey: String, publicKey: String, address: String) {
+    this.secretKey = secretKey;
+    this.publicKey = publicKey;
+    this.address = address;
+  }
+}
