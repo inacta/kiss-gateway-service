@@ -157,6 +157,16 @@ public interface NodeResource {
     GetActivityLogAddressResponse getActivityLogAddress(@QueryParam("contractAddress") String contractAddress);
 
     /**
+     * generateKeyPair
+     *
+     * @return KeyPair
+     */
+    @GET
+    @Path("/generateKeyPair")
+    @Produces(MediaType.APPLICATION_JSON)
+    KeyPair generateKeyPair();
+
+    /**
      * calculateUserSignature
      *
      * @param request CalculateUserSignatureRequest
