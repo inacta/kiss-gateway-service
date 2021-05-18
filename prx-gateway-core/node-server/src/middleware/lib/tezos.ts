@@ -26,8 +26,7 @@ async function isWhitelistedInternal(
 // Return a boolean indicating if address is whitelisted or not
 export async function getWhitelist(request: GetWhitelistRequest): Promise<WhitelistResponse> {
   if (request.version === WhitelistVersion.V0) {
-    const client = new TezosToolkit();
-    client.setProvider({ rpc });
+    const client = new TezosToolkit(rpc);
     return new WhitelistResponse(
       Status.SUCCESS,
       '',
@@ -49,13 +48,13 @@ export async function modifyWhitelist(request: ModifyWhitelistRequest, add: bool
       return new TransactionResponse(TransferStatus.ERROR, 'Provided target address is invalid');
     }
 
-    const client = new TezosToolkit();
     let signer;
     try {
       signer = new InMemorySigner(request.secretKey);
     } catch (e) {
       return new TransactionResponse(TransferStatus.ERROR, 'Provided secret key is invalid');
     }
+    const client = new TezosToolkit(rpc);
     client.setProvider({ rpc, signer });
 
     const isWhitelisted = await isWhitelistedInternal(request.walletAddress, request.contractAddress, client);
@@ -103,8 +102,7 @@ export async function modifyWhitelist(request: ModifyWhitelistRequest, add: bool
 }
 
 export async function getBalance(contractAddress: string, address: string, tokenId: BigNumber | undefined): Promise<GetBalanceResponse> {
-  const client = new TezosToolkit();
-  client.setProvider({ rpc });
+  const client = new TezosToolkit(rpc);
 
   const balance = await getTokenBalance(contractAddress, address, client, tokenId);
   return new GetBalanceResponse(balance.toString());
@@ -124,7 +122,7 @@ export async function handleTransfer(request: TokenTransferRequest): Promise<Tra
     return new TransactionResponse(TransferStatus.ERROR, e.message);
   }
 
-  const client = new TezosToolkit();
+  const client = new TezosToolkit(rpc);
   client.setProvider({ rpc, signer });
 
   const contract: ContractAbstraction<ContractProvider> = await client.contract.at(request.contractAddress);

@@ -17,8 +17,7 @@ export async function getAdmin(contractAddress: string): Promise<GetAdminRespons
   }
 
   // Read from storage
-  const client = new TezosToolkit();
-  client.setProvider({ rpc });
+  const client = new TezosToolkit(rpc);
   const contract: ContractAbstraction<ContractProvider> = await client.contract.at(contractAddress);
   return contract.storage().then((s: any) => {
     const admin: string = s.admin;
@@ -36,8 +35,7 @@ export async function getAllowedActivities(contractAddress: string): Promise<Get
   }
 
   // Read from storage
-  const client = new TezosToolkit();
-  client.setProvider({ rpc });
+  const client = new TezosToolkit(rpc);
   const contract: ContractAbstraction<ContractProvider> = await client.contract.at(contractAddress);
   const storage: any = await contract.storage();
   const allowedActivitiesStorage: any = storage.allowed_activities;
@@ -63,8 +61,7 @@ export async function getSuspendedActivities(contractAddress: string): Promise<G
   }
 
   // Read from storage
-  const client = new TezosToolkit();
-  client.setProvider({ rpc });
+  const client = new TezosToolkit(rpc);
   const contract: ContractAbstraction<ContractProvider> = await client.contract.at(contractAddress);
   return contract.storage().then((s: any) => {
     const suspendedActivitiesStorage: any = s.allowed_activities;
@@ -91,8 +88,7 @@ export async function getActivityLogAddress(contractAddress: string): Promise<Ge
   }
 
   // Read from storage
-  const client = new TezosToolkit();
-  client.setProvider({ rpc });
+  const client = new TezosToolkit(rpc);
   const contract: ContractAbstraction<ContractProvider> = await client.contract.at(contractAddress);
   return contract.storage().then((s: any) => {
     const activityLogAddress: string = s.external_contract_address;
@@ -110,8 +106,7 @@ async function getNonceInternal(contractAddress: string, address: string, client
 }
 
 export async function getNonce(contractAddress: string, address: string): Promise<GetNonceResponse> {
-  const client = new TezosToolkit();
-  client.setProvider({ rpc });
+  const client = new TezosToolkit(rpc);
   const nonce: number = await getNonceInternal(contractAddress, address, client);
   return {
     nonce
@@ -144,7 +139,7 @@ export async function calculateUserSignature(request: CalculateUserSignatureRequ
   }
 
   const sender = await signer.publicKeyHash();
-  const client = new TezosToolkit();
+  const client = new TezosToolkit(rpc);
   client.setProvider({ rpc, signer });
 
   const nonce: number = await getNonceInternal(request.contractAddress, sender, client);
@@ -190,7 +185,7 @@ export async function callSuspendAllowedActivity(request: CallSuspendAllowedActi
   }
 
   // Construct elements to interact with blockchain
-  const client = new TezosToolkit();
+  const client = new TezosToolkit(rpc);
   client.setProvider({ rpc, signer });
   const contract: ContractAbstraction<ContractProvider> = await client.contract.at(request.contractAddress);
   const sender = await signer.publicKeyHash();
@@ -232,7 +227,7 @@ export async function callAddAllowedActivity(request: CallAddAllowedActivityRequ
   }
 
   // Construct elements to interact with blockchain
-  const client = new TezosToolkit();
+  const client = new TezosToolkit(rpc);
   client.setProvider({ rpc, signer });
   const contract: ContractAbstraction<ContractProvider> = await client.contract.at(request.contractAddress);
   const sender = await signer.publicKeyHash();
@@ -281,7 +276,7 @@ export async function changeAdminThis(request: ChangeAdminThisRequest): Promise<
   }
 
   // Construct elements to interact with blockchain
-  const client = new TezosToolkit();
+  const client = new TezosToolkit(rpc);
   client.setProvider({ rpc, signer });
   const contract: ContractAbstraction<ContractProvider> = await client.contract.at(request.contractAddress);
   const sender = await signer.publicKeyHash();
@@ -326,7 +321,7 @@ export async function changeActivityLog(request: ChangeActivityLogRequest): Prom
   }
 
   // Construct elements to interact with blockchain
-  const client = new TezosToolkit();
+  const client = new TezosToolkit(rpc);
   client.setProvider({ rpc, signer });
   const contract: ContractAbstraction<ContractProvider> = await client.contract.at(request.contractAddress);
   const sender = await signer.publicKeyHash();
@@ -413,7 +408,7 @@ export async function registerTandemClaims(request: RegisterTandemClaimsRequest)
   }
 
   // Construct elements to interact with blockchain
-  const client = new TezosToolkit();
+  const client = new TezosToolkit(rpc);
   client.setProvider({ rpc, signer });
   const contract: ContractAbstraction<ContractProvider> = await client.contract.at(request.contractAddress);
   const sender = await signer.publicKeyHash();
