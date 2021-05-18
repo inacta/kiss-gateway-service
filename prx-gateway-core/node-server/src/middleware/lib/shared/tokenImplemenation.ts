@@ -34,7 +34,7 @@ export function getContractInterface(contract: ContractAbstraction<ContractProvi
   var standard = TokenStandard.unknown;
   if (
     // These function names are specified in FA2/TZIP-12
-    ['transfer', 'balance_of', 'update_operators', 'token_metadata_registry'].every((mn) => methodNames.includes(mn))
+    ['transfer', 'balance_of', 'update_operators'].every((mn) => methodNames.includes(mn))
   ) {
     standard = TokenStandard.fa2;
   } else if (
