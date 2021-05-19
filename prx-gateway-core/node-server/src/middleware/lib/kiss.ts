@@ -16,7 +16,7 @@ export async function getAdmin(contractAddress: string): Promise<GetAdminRespons
     return undefined;
   }
 
-  // Read from  storage
+  // Read from storage
   const client = new TezosToolkit(rpc);
   const contract: ContractAbstraction<ContractProvider> = await client.contract.at(contractAddress);
   return contract.storage().then((s: any) => {
