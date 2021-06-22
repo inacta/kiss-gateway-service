@@ -42,15 +42,15 @@ RUN cp ./ligo /usr/local/bin
 # Configure the JAVA_OPTIONS, you can add -XshowSettings:vm to also display the heap size.
 ENV JAVA_OPTIONS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 
-COPY prx-gateway-core/target/lib/* /deployments/lib/
-COPY prx-gateway-core/target/*-runner.jar /deployments/app.jar
+COPY kiss-gateway-core/target/lib/* /deployments/lib/
+COPY kiss-gateway-core/target/*-runner.jar /deployments/app.jar
 
 # Create app directory
 RUN mkdir -p /node-server
 
 # copy dist and package.json
-COPY prx-gateway-core/node-server/package*.json /node-server/
-COPY prx-gateway-core/node-server/dist /node-server/dist
+COPY kiss-gateway-core/node-server/package*.json /node-server/
+COPY kiss-gateway-core/node-server/dist /node-server/dist
 
 # install dependencies
 RUN cd /node-server && npm ci --only=production
@@ -58,7 +58,7 @@ RUN cd /node-server && npm ci --only=production
 # set environment to production
 ENV NODE_ENV production
 # set RPC url
-ENV NETWORK="delphinet"
+ENV NETWORK="florencenet"
 
 EXPOSE 8080
 USER 1001
